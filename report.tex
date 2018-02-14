@@ -132,8 +132,8 @@
       \begin{equation*} \begin{split}
         \frac{ \partial C}{ \partial o_q }
            &= \sum_s \bigg[   \frac{ \partial C}{ \partial p_q } \frac{ \partial p_q}{ \partial o_q }    +   \sum_{k \neq q} \frac{ \partial C}{ \partial p_k } \frac{ \partial p_k}{ \partial o_q }  \bigg]  \\
-           &= - \sum_s \bigg[    y_q \frac{1}{p_q} p_q (1 - p_q)  +   \sum_{k \neq q} y_k \frac{-1}{p_k} p_k p_q  \bigg]  \\
-           &= - \sum_s \bigg[    y_q (1 - p_q)  -  \sum_{k \neq q} y_k p_q       \bigg]   \\
+           &= \sum_s - \bigg[    y_q \frac{1}{p_q} p_q (1 - p_q)  +   \sum_{k \neq q} y_k \frac{-1}{p_k} p_k p_q  \bigg]  \\
+           &= \sum_s - \bigg[    y_q (1 - p_q)  -  \sum_{k \neq q} y_k p_q       \bigg]   \\
            &= \sum_s   \bigg[    - y_q  +  \sum_k y_k p_q   \bigg]  \\
            &= \sum_s p_q - y_q
       \end{split} \end{equation*}
