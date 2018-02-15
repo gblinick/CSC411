@@ -51,7 +51,7 @@ def plot_samples(M, filename='resources/part1.jpg'): #Part 1
     return
 
 
-def softmax(y):
+def softmax(y): #Provided by Profs
     '''Return the output of the softmax function for the matrix of output y. y
     is an NxM matrix where N is the number of outputs for a single case, and M
     is the number of cases'''
@@ -59,12 +59,23 @@ def softmax(y):
 
 
 def no_hidden_layers(x, W, b): #Part 2
+    '''Compute the network'''
     #the first column of W contains the weights for output 1
-    y = np.dot(W.T, x) + b
-    return softmax(y)
+    o = np.dot(W.T, x) + b
+    return softmax(o)
 
 
+def grad(y, p, x): #Part 3b
+    '''Compute the gradient wrt weights and biases'''
+    dC_do = sum(p, 0) - sum(y, 0)
+    
+    grad_w = np.sum(dC_do * x, 1) #could use np.mean() for smaller values
+    grad_b = dC_do
+    return grad_w, grad_b
 
+def NLL(y, y_): #Provided by Profs
+    #y is output of network, y_ is correct results
+    return -sum(y_*log(y))
 
 
 
@@ -80,9 +91,6 @@ def forward(x, W0, b0, W1, b1):
     L1 = dot(W1.T, L0) + b1
     output = softmax(L1)
     return L0, L1, output
-
-def NLL(y, y_):
-    return -sum(y_*log(y))
 
 def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):
     '''Incomplete function for computing the gradient of the cross-entropy
@@ -108,6 +116,13 @@ if __name__ == "__main__":
     
     
     M = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
+    #Parts 2 and 3 are implemented as functions above
+
+
+
+
+
+
 
 
 
