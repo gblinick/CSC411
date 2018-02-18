@@ -22,7 +22,7 @@ except:
 
 
 
-os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2')
+os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 
 
@@ -61,22 +61,35 @@ def softmax(y): #Provided by Profs
 def no_hidden_layers(x, W, b): #Part 2
     '''Compute the network'''
     #the first column of W contains the weights for output 1
-    o = np.dot(W.T, x) + b
-    return softmax(o)
+    L1 = np.dot(W.T, x) + b
+    return softmax(L1)
 
 
-def grad(y, p, x): #Part 3b
+def grad(y_, y, x): #Part 3b
     '''Compute the gradient wrt weights and biases'''
-    dC_do = sum(p, 0) - sum(y, 0)
+    dC_do = sum(y, 0) - sum(y_, 0) #y is output of softmax
     
-    grad_w = np.sum(dC_do * x, 1) #could use np.mean() for smaller values
+    grad_W = np.sum(dC_do * x, 1) #could use np.mean() for smaller values
     grad_b = dC_do
-    return grad_w, grad_b
+    return grad_W, grad_b
 
-def NLL(y, y_): #Provided by Profs
+def NLL(y, y_): #Cost func provided by Profs
     #y is output of network, y_ is correct results
     return -sum(y_*log(y))
 
+def NN(x, y_, W, b, rate, max_iter):
+    
+    iter = 0
+    while iter < max_iter:
+        y = no_hidden_layers(x, W, b)
+        
+        grad_W, grad_b = grad(y_, y, x)
+        W -= rate*grad_W
+        b -= rate*grad_b
+        
+        iter += 1
+    
+    return W, b
 
 
 
@@ -114,11 +127,30 @@ if __name__ == "__main__":
     #Part 1
     plot_samples(M, 'resources/part1.jpg')
     
-    
-    M = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
     #Parts 2 and 3 are implemented as functions above
 
+    
+    X = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
+    a = [np.array( X[key] ) for key in X.keys() if key[0:2] == 'tr']
+    x = np.concatenate( ( a ), axis=0 ).T
+    
+    y0 = np.array([[1,0,0,0,0,0,0,0,0,0]]*len(M['train0']) )
+    y1 = np.array([[0,1,0,0,0,0,0,0,0,0]]*len(M['train1']) )
+    y2 = np.array([[0,0,1,0,0,0,0,0,0,0]]*len(M['train2']) ) 
+    y3 = np.array([[0,0,0,1,0,0,0,0,0,0]]*len(M['train3']) )
+    y4 = np.array([[0,0,0,0,1,0,0,0,0,0]]*len(M['train4']) )
+    y5 = np.array([[0,0,0,0,0,1,0,0,0,0]]*len(M['train5']) )
+    y6 = np.array([[0,0,0,0,0,0,1,0,0,0]]*len(M['train6']) )
+    y7 = np.array([[0,0,0,0,0,0,0,1,0,0]]*len(M['train7']) )
+    y8 = np.array([[0,0,0,0,0,0,0,0,1,0]]*len(M['train8']) )
+    y9 = np.array([[0,0,0,0,0,0,0,0,0,1]]*len(M['train9']) )
+    y_ = np.concatenate( (y0,y1,y2,y3,y4,y5,y6,y7,y8,y9), axis=0 ).T
 
+    W = rd.rand(784, 10)
+    b = rd.rand(10, 1)
+    rate = 1e-5
+    max_iter = 1000
+    W, b = NN(x, y_, W, b, rate, max_iter)
 
 
 

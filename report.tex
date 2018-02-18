@@ -93,6 +93,8 @@
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
    The biases are represented by a 10 by 1 vector, one entry for each output.
+   $y\_$ is a matrix representing the correct results for each image; each column is a
+   vector of zeros with a 1 in the place representing the correct digit.
 
    \section{Gradient}
    The cost function is taken to be $\sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
