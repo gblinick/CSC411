@@ -94,6 +94,15 @@ def NN(x, y_, W, b, rate, max_iter):
     
     return W, b, y
 
+def check_results(y_, y):
+    results = []
+    for k in range( len(y[1,:]) ):
+        if np.argmax(y_[:,k]) == np.argmax(y[:,k]): 
+            results += [1]
+        else:
+            results += [0]
+    return results
+
 
 
 
@@ -153,7 +162,7 @@ if __name__ == "__main__":
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
     rate = 1e-5
-    max_iter = 100
+    max_iter = 10000
     W, b, y = NN(x, y_, W, b, rate, max_iter)
 
 
