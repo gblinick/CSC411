@@ -93,8 +93,12 @@
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
    The biases are represented by a 10 by 1 vector, one entry for each output.
-   $y\_$ is a matrix representing the correct results for each image; each column is a
+
+   Throughout the code, $y\_$ is a matrix representing the correct results for each image; each column is a
    vector of zeros with a 1 in the place representing the correct digit.
+   $y$ is a matrix representing the output probabilities from the network of the same dimensions
+   as $y\_$; each column is a vector representing the probabilities for each digit for a
+   particular sample.
 
    \section{Gradient}
    The cost function is taken to be $\sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
@@ -150,6 +154,27 @@
       \begin{lstlisting}[language=Python]
          def func():
       \end{lstlisting}
+
+
+   \section{Part 4}
+
+   \section{Part 5}
+
+   \section{Analysis of Momentum}
+   \subsection{Contour Plot}
+
+   \subsection{Trajetory without Momentum}
+
+   \subsection{Trajetory with Momentum}
+
+   \subsection{Discussion}
+
+
+
+
+   \section{Vectorized Backpropogation}
+   Consider a neural network with $N$ layers each containing $K$ neurons.
+
 
 
 

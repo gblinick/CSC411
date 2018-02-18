@@ -90,6 +90,8 @@ def NN(x, y_, W, b, rate, max_iter):
         W -= rate*grad_W
         b -= rate*grad_b
         
+        if iter%50 == 0:
+            print(iter)
         iter += 1
     
     return W, b, y
@@ -161,9 +163,12 @@ if __name__ == "__main__":
 
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    rate = 1e-5
-    max_iter = 10000
+    rate = 1e-3
+    max_iter = 1000
     W, b, y = NN(x, y_, W, b, rate, max_iter)
+    
+    res = check_results(y_, y)
+    print( str(res.count(1)) + '/' + str(len(res)) )
 
 
 
