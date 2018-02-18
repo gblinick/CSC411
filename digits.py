@@ -67,11 +67,14 @@ def no_hidden_layers(x, W, b): #Part 2
 
 def grad(y_, y, x): #Part 3b
     '''Compute the gradient wrt weights and biases'''
-    dC_do = sum(y, 0) - sum(y_, 0) #y is output of softmax
+    diff = sum(y, 0) - sum(y_, 0) #y is output of softmax
     
-    grad_W = np.sum(dC_do * x, 1) #could use np.mean() for smaller values
-    grad_b = dC_do
-    return grad_W, grad_b
+    grad_W = np.sum(diff * x, 1).T #could use np.mean() for smaller values
+    grad_b = np.sum( y*(1-y), 1)
+    
+    grad_W = tile(grad_W, (10, 1)).T
+    grad_b = np.reshape(10,1)
+    return  grad_W, grad_b
 
 def NLL(y, y_): #Cost func provided by Profs
     #y is output of network, y_ is correct results
@@ -89,7 +92,8 @@ def NN(x, y_, W, b, rate, max_iter):
         
         iter += 1
     
-    return W, b
+    return W, b, y
+
 
 
 
@@ -149,8 +153,8 @@ if __name__ == "__main__":
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
     rate = 1e-5
-    max_iter = 1000
-    W, b = NN(x, y_, W, b, rate, max_iter)
+    max_iter = 100
+    W, b, y = NN(x, y_, W, b, rate, max_iter)
 
 
 
@@ -159,26 +163,26 @@ if __name__ == "__main__":
 
 
 
-
-    #Load sample weights for the multilayer neural network
-    snapshot = pickle.load(open("snapshot50.pkl", 'rb'), encoding='latin1')
-    W0 = snapshot["W0"]
-    b0 = snapshot["b0"].reshape((300,1))
-    W1 = snapshot["W1"]
-    b1 = snapshot["b1"].reshape((10,1))
-    
-    #Load one example from the training set, and run it through the
-    #neural network
-    x = M["train5"][148:149].T
-    L0, L1, output = forward(x, W0, b0, W1, b1)
-    #get the index at which the output is the largest
-    y = argmax(output)
-    
-    ################################################################################
-    #Code for displaying a feature from the weight matrix mW
-    #fig = figure(1)
-    #ax = fig.gca()
-    #heatmap = ax.imshow(mW[:,50].reshape((28,28)), cmap = cm.coolwarm)
-    #fig.colorbar(heatmap, shrink = 0.5, aspect=5)
-    #show()
-    ################################################################################
+    if False:
+        #Load sample weights for the multilayer neural network
+        snapshot = pickle.load(open("snapshot50.pkl", 'rb'), encoding='latin1')
+        W0 = snapshot["W0"]
+        b0 = snapshot["b0"].reshape((300,1))
+        W1 = snapshot["W1"]
+        b1 = snapshot["b1"].reshape((10,1))
+        
+        #Load one example from the training set, and run it through the
+        #neural network
+        x = M["train5"][148:149].T
+        L0, L1, output = forward(x, W0, b0, W1, b1)
+        #get the index at which the output is the largest
+        y = argmax(output)
+        
+        ################################################################################
+        #Code for displaying a feature from the weight matrix mW
+        #fig = figure(1)
+        #ax = fig.gca()
+        #heatmap = ax.imshow(mW[:,50].reshape((28,28)), cmap = cm.coolwarm)
+        #fig.colorbar(heatmap, shrink = 0.5, aspect=5)
+        #show()
+        ################################################################################
