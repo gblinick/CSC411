@@ -23,7 +23,7 @@ except:
 
 
 
-os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+#os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 
 
@@ -56,22 +56,31 @@ def softmax(y): #Provided by Profs
     '''Return the output of the softmax function for the matrix of output y. y
     is an NxM matrix where N is the number of outputs for a single case, and M
     is the number of cases'''
+    # For 2, y has the dimensions (10x60000)
     return exp(y)/tile(sum(exp(y),0), (len(y),1))
+    #return dimension is (10x60000)
 
 
 def no_hidden_layers(x, W, b): #Part 2
     '''Compute the network'''
     #the first column of W contains the weights for output 1
+    # W is (784x10), x is (784x60 000) and b is (10x60 000)
+    # So L1 is (10x60000)
     L1 = np.dot(W.T, x) + tile(b, (1,60000) )
     return softmax(L1)
 
 
 def grad(y_, y, x): #Part 3b
     '''Compute the gradient wrt weights and biases'''
-    diff = (10**15)*np.sum(y - y_, 0) #y is output of softmax
+    #y and y_ have dimension (10x60000)
+    #x has dimension (784x60 000)
     
-    grad_W = np.mean(diff * x, 1)
-    grad_b = np.sum( y*(1-y), 1)
+    diff = (10**15)*np.sum(y - y_, 0) #y is output of softmax
+    #diff has dimension 1x60000
+    # diff is p_j - y_j
+    
+    grad_W = np.mean(diff * x, 1) ##??
+    grad_b = np.sum( y*(1-y), 1)  ##??
     
     grad_W = tile(grad_W, (10, 1)).T
     grad_b = np.reshape(10,1)
@@ -80,6 +89,7 @@ def grad(y_, y, x): #Part 3b
 def NLL(y, y_): #Cost func provided by Profs
     #y is output of network, y_ is correct results
     return -sum(y_*log(y))
+
 
 def format_y(M, set):
     '''format y_ for the training and test set'''
@@ -114,7 +124,7 @@ def NN(x, y_, W, b, rate, max_iter):
     
     return W, b
 
-def check_results(y_, y):
+def check_results(y_, y):  #part 4?
     results = []
     for k in range( len(y[1,:]) ):
         if np.argmax(y_[:,k]) == np.argmax(y[:,k]): 
@@ -126,19 +136,19 @@ def check_results(y_, y):
 
 
 
-def tanh_layer(y, W, b):
+def tanh_layer(y, W, b):   #Provided by profs
     '''Return the output of a tanh layer for the input matrix y. y
     is an NxM matrix where N is the number of inputs for a single case, and M
     is the number of cases'''
     return tanh(dot(W.T, y)+b)
 
-def forward(x, W0, b0, W1, b1):
+def forward(x, W0, b0, W1, b1): #Provided by profs
     L0 = tanh_layer(x, W0, b0)
     L1 = dot(W1.T, L0) + b1
     output = softmax(L1)
     return L0, L1, output
 
-def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):
+def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):  #provided by profs
     '''Incomplete function for computing the gradient of the cross-entropy
     cost function w.r.t the parameters of a neural network'''
     dCdL1 =  y - y_
@@ -147,7 +157,8 @@ def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":     #run directly
+
 
     M = loadmat("mnist_all.mat") #Load the MNIST digit data
 
@@ -159,6 +170,7 @@ if __name__ == "__main__":
     plot_samples(M, 'resources/part1.jpg')  #Part 1
     
     #Parts 2 and 3 are implemented as functions above
+
 
     #Setup data needed for training & testing           #X = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
     x_train = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'tr'] ), axis=0 ).T
@@ -189,7 +201,7 @@ if __name__ == "__main__":
 
 
     if False:
-        #Load sample weights for the multilayer neural network
+        #Load sample weights for the multilayer neural network (given)
         snapshot = pickle.load(open("snapshot50.pkl", 'rb'), encoding='latin1')
         W0 = snapshot["W0"]
         b0 = snapshot["b0"].reshape((300,1))

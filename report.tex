@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage[margin=1.2in]{geometry}
-\usepackage{datetime}
+\usepackage{datetime2}
 %\usepackage{hyperref}      %for \url macro
 \usepackage{microtype}     %attempt to fix issue with justification protrusion (in references)
 \usepackage{amssymb}       % for formatting less/greater than symbols
@@ -46,14 +46,13 @@
 \lstset{style=mystyle}
 
 \frenchspacing                   %removes extra spacing after a period at the end of a sentence.
-\newdateformat{daymonthyear}{
-  \THEDAY\ \monthname\ \THEYEAR}
+%\newdateformat{daymonthyear}{\THEDAY\ \monthname\ \THEYEAR}
 
 \title{CSC411 Machine Learning \\ Project 2: Deep Neural Network}
 \author{ Ariel Kelman \\ Student No: 1000561368
          \\ \\
-         Gideon Blinick \\ Student No: }
-\daymonthyear
+         Gideon Blinick \\ Student No: 999763000 }
+%\daymonthyear
 
 
 
@@ -80,7 +79,7 @@
    output passed through a softmax layer to estimated probabilities.
 
    \begin{lstlisting}[language=Python]
-      def func():
+      def no_hidden_layers():
    \end{lstlisting}
 
    The network is described by the weights and biases from the 784 = 28*28 inputs
@@ -155,7 +154,7 @@
    The following code computes the gradient with respect to the wieghts and biases
    (representing all input training images in a matrix $X$, 784 by the number of samples) gives
       \begin{lstlisting}[language=Python]
-         def func():
+         def grad():
       \end{lstlisting}
 
 
