@@ -90,7 +90,23 @@ def NLL(y, y_): #Cost func provided by Profs
     #y is output of network, y_ is correct results
     return -sum(y_*log(y))
 
-def NN(x, y_, W, b, rate, max_iter): #Part 4?
+
+def format_y(M, set):
+    '''format y_ for the training and test set'''
+    y0 = np.array([[1,0,0,0,0,0,0,0,0,0]]*len(M[set+'0']) )
+    y1 = np.array([[0,1,0,0,0,0,0,0,0,0]]*len(M[set+'1']) )
+    y2 = np.array([[0,0,1,0,0,0,0,0,0,0]]*len(M[set+'2']) ) 
+    y3 = np.array([[0,0,0,1,0,0,0,0,0,0]]*len(M[set+'3']) )
+    y4 = np.array([[0,0,0,0,1,0,0,0,0,0]]*len(M[set+'4']) )
+    y5 = np.array([[0,0,0,0,0,1,0,0,0,0]]*len(M[set+'5']) )
+    y6 = np.array([[0,0,0,0,0,0,1,0,0,0]]*len(M[set+'6']) )
+    y7 = np.array([[0,0,0,0,0,0,0,1,0,0]]*len(M[set+'7']) )
+    y8 = np.array([[0,0,0,0,0,0,0,0,1,0]]*len(M[set+'8']) )
+    y9 = np.array([[0,0,0,0,0,0,0,0,0,1]]*len(M[set+'9']) )
+    y_ = np.concatenate( (y0,y1,y2,y3,y4,y5,y6,y7,y8,y9), axis=0 ).T 
+    return y_
+
+def NN(x, y_, W, b, rate, max_iter):
     
     iter = 0
     while iter < max_iter:
@@ -106,7 +122,7 @@ def NN(x, y_, W, b, rate, max_iter): #Part 4?
             print(la.norm(W - prevW) )
         iter += 1
     
-    return W, b, y
+    return W, b
 
 def check_results(y_, y):  #part 4?
     results = []
@@ -143,49 +159,39 @@ def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):  #provided by profs
 
 if __name__ == "__main__":     #run directly
 
-    M = loadmat("mnist_all.mat") #Load the MNIST digit data (given)
-    
-    #Display the 150-th "5" digit from the training set (given)
-    if False:
+
+    M = loadmat("mnist_all.mat") #Load the MNIST digit data
+
+    if False:     #Display the 150-th "5" digit from the training set
         plt.imshow(M["train5"][150].reshape((28,28)), cmap=cm.gray)
         plt.show()
         plt.close()
         
-    #Part 1
-    plot_samples(M, 'resources/part1.jpg')
+    plot_samples(M, 'resources/part1.jpg')  #Part 1
     
     #Parts 2 and 3 are implemented as functions above
 
-    
-    #Part 4
-    X = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
-    a = [np.array( X[key] ) for key in X.keys() if key[0:2] == 'tr']
-    x = np.concatenate( ( a ), axis=0 ).T
-    
-    y0 = np.array([[1,0,0,0,0,0,0,0,0,0]]*len(M['train0']) )
-    y1 = np.array([[0,1,0,0,0,0,0,0,0,0]]*len(M['train1']) )
-    y2 = np.array([[0,0,1,0,0,0,0,0,0,0]]*len(M['train2']) ) 
-    y3 = np.array([[0,0,0,1,0,0,0,0,0,0]]*len(M['train3']) )
-    y4 = np.array([[0,0,0,0,1,0,0,0,0,0]]*len(M['train4']) )
-    y5 = np.array([[0,0,0,0,0,1,0,0,0,0]]*len(M['train5']) )
-    y6 = np.array([[0,0,0,0,0,0,1,0,0,0]]*len(M['train6']) )
-    y7 = np.array([[0,0,0,0,0,0,0,1,0,0]]*len(M['train7']) )
-    y8 = np.array([[0,0,0,0,0,0,0,0,1,0]]*len(M['train8']) )
-    y9 = np.array([[0,0,0,0,0,0,0,0,0,1]]*len(M['train9']) )
-    y_ = np.concatenate( (y0,y1,y2,y3,y4,y5,y6,y7,y8,y9), axis=0 ).T
 
-    print(time.time() )
-    rd.seed(1)
+    #Setup data needed for training & testing           #X = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
+    x_train = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'tr'] ), axis=0 ).T
+    x_test = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'te'] ), axis=0 ).T
+    y_train = format_y(M, 'train')
+    y_test = format_y(M, 'test')
+
+    rd.seed(1)  #parameters for gradient descent
     W = rd.rand(784, 10)
-    W_init = W.copy()
     b = rd.rand(10, 1)
     rate = 1e-3
     max_iter = 300
-    W, b, y = NN(x, y_, W, b, rate, max_iter)
+    W_init = W.copy() #for comparing results after gradient descent
+
     print(time.time() )
+    W, b = NN(x_train, y_, W, b, rate, max_iter)
+    y = no_hidden_layers(x, W, b)
+    print(time.time() ) 
     
-    res = check_results(y_, y)
-    print( str(res.count(1)) + '/' + str(len(res)) )
+    res = check_results(y_train, y)
+    print( 'Results: ' + str(res.count(1)) + '/' + str(len(res)) )
 
 
 

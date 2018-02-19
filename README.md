@@ -1,2 +1,2 @@
 # CSC411
-testing something something
+Project 2 for CSC411 at UofT Winter 2018
