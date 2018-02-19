@@ -130,7 +130,8 @@
            &= \frac{ \partial }{ \partial w_{ij} } \sum_{s} y^{(s)} ln(p^{(s)}) \\
            %&= \sum_s \sum_k \sum_q \frac{ \partial C}{ \partial p_k^{(s)} } \frac{ \partial p_k^{(s)} }{ \partial o_q^{(s)} } \frac{ \partial o_q^{(s)} }{ \partial w_{ij} } \\
            &= \sum_s \sum_q  \frac{ \partial C}{ \partial o_q } \frac{ \partial o_q }{ \partial w_{ij} } \\
-           &= \sum_s \sum_q ( p_q - y_q ) x_i \\
+           &= \sum_s \sum_q ( p_q - y_q ) x_i \delta_{jq}  \\
+           &= \sum_s ( p_j - y_j ) x_i
            %&= - \sum_s \sum_k \sum_q \frac{1}{p_k^{(s)} } p_k^{(s)} ( 1 - p_k^{(s)} ) x_i^{(s)} \\
            %&= \sum_s \sum_k ( p_k^{(s)} - 1) x_i^{(s)}
       \end{split} \end{equation*}
@@ -146,6 +147,8 @@
    The last line follows because $\sum_k y_k = 1$.
    As the outputs are linear functions of both the inputs and the weights, the derivative
    with respect to a weight is given by the value of the input to that weight, namely $x_i$.
+   The Kronecker delta $\delta_{jq}$ results from $ \frac{ \partial o_q }{ \partial w_{ij} } $
+   being nonzero only when $j = q$.
    The $(s)$ superscript indicating the sample index was omitted throughout the derivation for clarity of presentation.
 
    \subsection{Vectorized Gradient Code}
