@@ -1,6 +1,7 @@
 from pylab import *
 import numpy as np
 from numpy import random as rd
+import numpy.linalg as la
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -61,15 +62,15 @@ def softmax(y): #Provided by Profs
 def no_hidden_layers(x, W, b): #Part 2
     '''Compute the network'''
     #the first column of W contains the weights for output 1
-    L1 = np.dot(W.T, x) + b
+    L1 = np.dot(W.T, x) + tile(b, (1,60000) )
     return softmax(L1)
 
 
 def grad(y_, y, x): #Part 3b
     '''Compute the gradient wrt weights and biases'''
-    diff = sum(y, 0) - sum(y_, 0) #y is output of softmax
+    diff = (10**15)*np.sum(y - y_, 0) #y is output of softmax
     
-    grad_W = np.sum(diff * x, 1).T #could use np.mean() for smaller values
+    grad_W = np.mean(diff * x, 1)
     grad_b = np.sum( y*(1-y), 1)
     
     grad_W = tile(grad_W, (10, 1)).T
@@ -85,6 +86,7 @@ def NN(x, y_, W, b, rate, max_iter):
     iter = 0
     while iter < max_iter:
         y = no_hidden_layers(x, W, b)
+        prevW = W.copy()
         
         grad_W, grad_b = grad(y_, y, x)
         W -= rate*grad_W
@@ -92,6 +94,7 @@ def NN(x, y_, W, b, rate, max_iter):
         
         if iter%50 == 0:
             print(iter)
+            print(la.norm(W - prevW) )
         iter += 1
     
     return W, b, y
@@ -161,11 +164,15 @@ if __name__ == "__main__":
     y9 = np.array([[0,0,0,0,0,0,0,0,0,1]]*len(M['train9']) )
     y_ = np.concatenate( (y0,y1,y2,y3,y4,y5,y6,y7,y8,y9), axis=0 ).T
 
+    print(time.time() )
+    rd.seed(1)
     W = rd.rand(784, 10)
+    W_init = W.copy()
     b = rd.rand(10, 1)
     rate = 1e-3
-    max_iter = 1000
+    max_iter = 300
     W, b, y = NN(x, y_, W, b, rate, max_iter)
+    print(time.time() )
     
     res = check_results(y_, y)
     print( str(res.count(1)) + '/' + str(len(res)) )

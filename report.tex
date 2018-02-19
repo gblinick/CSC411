@@ -101,7 +101,7 @@
    particular sample.
 
    \section{Gradient}
-   The cost function is taken to be $\sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
+   The cost function is taken to be $- \sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
    1 for the correct class and 0 otherwise, and $p_k$ is the prediction probability for class k.
    Writing this in vector notation (replacing the sum with a vector dot product) and
    summing over all the samples gives:
@@ -115,8 +115,8 @@
       \begin{equation*} \begin{split}
         \frac{ \partial p_k}{ \partial o_q } =
             \begin{cases}
-               -p_k p_q       & \textrm{ if } k \neq p \\
-               p_q (1 - p_q)  & \textrm{ if } k = p
+               -p_k p_q       & \textrm{ if } k \neq q \\
+               p_q (1 - p_q)  & \textrm{ if } k = q
             \end{cases}
       \end{split} \end{equation*}
    These results follow directly from the definition of the softmax function.
@@ -134,19 +134,19 @@
            %&= - \sum_s \sum_k \sum_q \frac{1}{p_k^{(s)} } p_k^{(s)} ( 1 - p_k^{(s)} ) x_i^{(s)} \\
            %&= \sum_s \sum_k ( p_k^{(s)} - 1) x_i^{(s)}
       \end{split} \end{equation*}
-   where $ \frac{ \partial C}{ \partial o_q } $ was computed by
+   where $ \frac{ \partial C}{ \partial o_q } $ was computed (for one sample) by
       \begin{equation*} \begin{split}
         \frac{ \partial C}{ \partial o_q }
-           &= \sum_s \bigg[   \frac{ \partial C}{ \partial p_q } \frac{ \partial p_q}{ \partial o_q }    +   \sum_{k \neq q} \frac{ \partial C}{ \partial p_k } \frac{ \partial p_k}{ \partial o_q }  \bigg]  \\
-           &= \sum_s - \bigg[    y_q \frac{1}{p_q} p_q (1 - p_q)  +   \sum_{k \neq q} y_k \frac{-1}{p_k} p_k p_q  \bigg]  \\
-           &= \sum_s - \bigg[    y_q (1 - p_q)  -  \sum_{k \neq q} y_k p_q       \bigg]   \\
-           &= \sum_s   \bigg[    - y_q  +  \sum_k y_k p_q   \bigg]  \\
-           &= \sum_s p_q - y_q
+           &= \bigg[   \frac{ \partial C}{ \partial p_q } \frac{ \partial p_q}{ \partial o_q }    +   \sum_{k \neq q} \frac{ \partial C}{ \partial p_k } \frac{ \partial p_k}{ \partial o_q }  \bigg]  \\
+           &= - \bigg[    y_q \frac{1}{p_q} p_q (1 - p_q)  +   \sum_{k \neq q} y_k \frac{-1}{p_k} p_k p_q  \bigg]  \\
+           &= - \bigg[    y_q (1 - p_q)  -  \sum_{k \neq q} y_k p_q       \bigg]   \\
+           &=   \bigg[    - y_q  +  \sum_k y_k p_q   \bigg]  \\
+           &=  p_q - y_q
       \end{split} \end{equation*}
    The last line follows because $\sum_k y_k = 1$.
    As the outputs are linear functions of both the inputs and the weights, the derivative
    with respect to a weight is given by the value of the input to that weight, namely $x_i$.
-   The $(s)$ superscript indicating the sample index was omitted for clarity of presentation.
+   The $(s)$ superscript indicating the sample index was omitted throughout the derivation for clarity of presentation.
 
    \subsection{Vectorized Gradient Code}
    The following code computes the gradient with respect to the wieghts and biases
