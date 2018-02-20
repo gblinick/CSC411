@@ -61,6 +61,12 @@
 
 
    \section{Introduction}
+   This section provides an introduction to Project 2, including the data used, and notes
+   on reproducing the results. Sections 2-6 discuss the implementation of a simple neural
+   network to classify images from the MNIST database, section 7 is a theoretical anlaysis
+   of the efficiency of backpropogation, and sections 8-10 work with deep neural networks.
+
+   \subsection{Digits}
    The following figure shows 10 random images from the training set of each of the digits.
    \begin{figure}[H] \centering
       \includegraphics[width=4in]{resources/part1}
@@ -70,6 +76,7 @@
    The data was downloaded from the assignment webpage, and imported into Python using the
    provided code. The data was already divided into training and testing sets...
 
+   \subsection{Results \& Report Reproducibility}
    All results and plots can be generated using the python file...
    To reproduce the report, simply run it through latex.
 
@@ -137,12 +144,9 @@
       \begin{equation*} \begin{split}
         \frac{ \partial C}{ \partial w_{ij} }
            &= \frac{ \partial }{ \partial w_{ij} } \sum_{s} y^{(s)} ln(p^{(s)}) \\
-           %&= \sum_s \sum_k \sum_q \frac{ \partial C}{ \partial p_k^{(s)} } \frac{ \partial p_k^{(s)} }{ \partial o_q^{(s)} } \frac{ \partial o_q^{(s)} }{ \partial w_{ij} } \\
            &= \sum_s \sum_q  \frac{ \partial C}{ \partial o_q } \frac{ \partial o_q }{ \partial w_{ij} } \\
            &= \sum_s \sum_q ( p_q - y_q ) x_i \delta_{jq}  \\
            &= \sum_s ( p_j - y_j ) x_i
-           %&= - \sum_s \sum_k \sum_q \frac{1}{p_k^{(s)} } p_k^{(s)} ( 1 - p_k^{(s)} ) x_i^{(s)} \\
-           %&= \sum_s \sum_k ( p_k^{(s)} - 1) x_i^{(s)}
       \end{split} \end{equation*}
    As the outputs are linear functions of both the inputs and the weights, the derivative
    with respect to a weight is given by the value of the input to that weight, namely $x_i$.
@@ -158,12 +162,31 @@
       \end{lstlisting}
 
 
-   \section{Part 4}
+   \section{Training}
+   The neural network was trained on the full training set of $60000$ images without momentum.
+   A learning rate of $xxx$ was used for $xxx$ iterations, giving a training accuracy of $xxx$
+   and a testing accuracy of $xxx$.
+   The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
 
-   \section{Part 5}
+   The following figure shows a learning curve...
+
+   \section{Training with Momentum}
+   The neural network was trained on the full training set of $60000$ images with momentum, set to $xxx$.
+   A learning rate of $xxx$ was used for $xxx$ iterations, giving a training accuracy of $xxx$
+   and a testing accuracy of $xxx$.
+   The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
+
+   The following figure shows a learning curve...
+
 
    \section{Analysis of Momentum}
+   For the analysis in this section, the weights $w_{ab}$ and $w_{cd}$ were used (recall that $W$ is
+   a $784$ by $10$ matrix). After training the network as described in the previous section,
+   these weights had the values $w_{ab} = xxx$ and $w_{cd} = yyy$.
+
    \subsection{Contour Plot}
+   The following plot shows the variation of the cost function (negative log loss) around the
+   values for $w_{ab}$ and $w_{cd}$ chosen above.
 
    \subsection{Trajetory without Momentum}
 
@@ -175,7 +198,34 @@
 
 
    \section{Vectorized Backpropogation}
-   Consider a neural network with $N$ layers each containing $K$ neurons.
+   Consider a neural network with $N$ layers each containing $K$ neurons. By convention,
+   the input layer will not counted toward $N$ layers, but the final output layer will be
+   counted (thus there are $N$ sets of weights and biases that must be learned). Any function
+   (such as softmax) applied to the final layer is ignored; none of these conventions will
+   affect the asymptotic runtime. We also assume that the results of the forward pass of the
+   network are cached, to be used for both vectorized backpropogation and computing the
+   gradient with respect to each weight independenly.
+   We can also ignore the biases; including them could be accomodated by adding an extra
+   neuron to every layer (except the last) with a constant value of $1$. This would be
+   equivalent to increasing $K$ by $1$.
+
+   Denote each layer by the numbers $1,2... N$ (we can refer to the input layer as layer $0$).
+   The efficiency of computing the gradient with respect to a weight to/from a particular layer
+   does not depend on which weight it is, so $w^{a \rightarrow b}$ can stand for an arbitrary weight from
+   layer $a$ to $b$. A particular neuron in layer $n$ will be denoted by $\sigma^n$ with a
+   subscript to denote that only on neuron in the layer is intended.
+
+   Then the following holds: %h, m, q
+      \begin{equation*} \begin{split}
+        \frac{ \partial C}{ \partial w^{N-1 \rightarrow N} }
+           &= \frac{ \partial C}{ \partial \sigma^N_q }  \frac{ \partial \sigma^N_q}{ \partial w^{N-1 \rightarrow N} } \\
+        \frac{ \partial C}{ \partial w^{N-2 \rightarrow N-1} }
+           &= \sum_q \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}  \frac{ \partial \sigma^{N-1}_m }{ \partial w^{N-1 \rightarrow N} } \\
+      \end{split} \end{equation*}
+   Since there are $K$ neurons in each layer,
+
+   THE ABOVE NOTAION IS REALLY CONFUSING, I'LL TRY TO IMPROVE IT
+
 
 
 
