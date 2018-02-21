@@ -23,7 +23,7 @@ except:
 
 
 
-#os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 
 
@@ -89,10 +89,12 @@ def NLL(y_, y): #Cost func provided by Profs
     #y is output of network, y_ is correct results
     return -np.sum(y_*log(y))
 
-def finite_diff(y_, y, h):
+def finite_diff(y_, x, W, h, b):
     '''note that for simplicity of the code, h is a matrix. the placement of its nonzero element determines the 
     direction along which the finite difference is calculated'''
-    fd = NLL(y_, y + h) - NLL(y_, y) #wrong
+    y2 = no_hidden_layers(x, W+h, b)
+    y1 = no_hidden_layers(x, W, b)
+    fd = NLL(y_, y2) - NLL(y_, y1) 
     return fd/np.max(h)
 
 def format_y(M, set):
@@ -217,13 +219,10 @@ if __name__ == "__main__":     #run directly
         plt.show()
         plt.close()
         
-    plot_samples(M, 'resources/part1.jpg')  #Part 1
+    '''plot_samples(M, 'resources/part1.jpg')  #Part 1'''
     
     #Parts 2 and 3 are implemented as functions above
     
-    #Finite Diff
-    #h = np.zeros( np.shape(W) )
-    #h[4,45] = 0.001
 
 
 
@@ -238,7 +237,6 @@ if __name__ == "__main__":     #run directly
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    W_init = W.copy() #for comparing results after gradient descent
 
     W, b = backprop(x_train, y_train, W, b, rate, max_iter, mom=0)
     y = no_hidden_layers(x_train, W, b)
@@ -251,9 +249,13 @@ if __name__ == "__main__":     #run directly
 
 
 
-
-
-
+    #Finite Diff
+    h = np.zeros( np.shape(W) )
+    h[400,5] = 0.00001
+    t = finite_diff(y_test, x_test, W, h, b)
+    z, _ = grad(y_test, y, x_test)
+    
+    
 
 
     if False:
