@@ -76,7 +76,6 @@ def grad(y_, y, x): #Part 3b
     #x has dimension (784x60 000)
     
     diff = (y - y_) #y is output of softmax
-        # diff has dimension 10x60000
         # diff is p_j - y_j
     
     grad_W = np.dot( x, diff.T )
@@ -112,7 +111,7 @@ def format_y(M, set):
     y_ = np.concatenate( (y0,y1,y2,y3,y4,y5,y6,y7,y8,y9), axis=0 ).T 
     return y_
 
-def backprop(x, y_, W, b, rate, max_iter, mom=0):
+def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename=''):
     
     iter_acc = []
     train_acc = []
@@ -123,10 +122,10 @@ def backprop(x, y_, W, b, rate, max_iter, mom=0):
     
     iter = 0
     while iter <= max_iter:
-        y = no_hidden_layers(x, W, b)
+        y = no_hidden_layers(x_train, W, b)
         prevW = W.copy()
         
-        grad_W, grad_b = grad(y_, y, x)
+        grad_W, grad_b = grad(y_train, y, x_train)
         nu_W = mom*nu_W + rate*grad_W
         nu_b = mom*nu_b + rate*grad_b
         W -= nu_W
@@ -140,23 +139,36 @@ def backprop(x, y_, W, b, rate, max_iter, mom=0):
             #print( 'Train Results: ' + str(res.count(1)) + '/' + str(len(res)) )
             train_acc += [ res.count(1)/len(res) ]
             
-            y = no_hidden_layers(x_test, W, b)
-            res = check_results(y_test, y)
+            y = no_hidden_layers(x_val, W, b)
+            res = check_results(y_val, y)
             #print( 'Test Results: ' + str(res.count(1)) + '/' + str(len(res)) ) 
             test_acc += [ res.count(1)/len(res) ]
         iter += 1
     
-    plt.scatter(iter_acc, train_acc, label='Training Data')
-    plt.scatter(iter_acc, test_acc, label='Test Data')
-    plt.title('Learing Curve')
-    plt.xlabel('number of iterations')
-    plt.ylabel('accuracy')
-    plt.legend()
-    plt.savefig('resources/part4.jpg')
-    plt.show()
-    plt.close()
+    if filename:
+        plt.scatter(iter_acc, train_acc, label='Training Data')
+        plt.scatter(iter_acc, test_acc, label='Test Data')
+        plt.title('Learing Curve')
+        plt.xlabel('number of iterations')
+        plt.ylabel('accuracy')
+        plt.legend()
+        plt.savefig('resources/' + filename)
+        #plt.show()
+        plt.close()
     
     return W, b
+
+def optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter, mom=0):
+    val_acc = []
+    for rate in rates:
+        rd.seed(0)  
+        W = rd.rand(784, 10)
+        b = rd.rand(10, 1)
+        W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0)
+        y = no_hidden_layers(x_val, W, b) #the network guesses for the validation set
+        res = check_results(y_val, y)
+        val_acc += [ res.count(1)/len(res) ]
+    return val_acc
 
 def check_results(y_, y): 
     '''return an array of 0/1's indicating the correctness of NN's output'''
@@ -226,22 +238,40 @@ if __name__ == "__main__":     #run directly
 
 
 
-    #Setup data needed for training & testing           #X = { key:M[key]/255.0 for key in M.keys() if key[0] == 't' } #remove extra keys, and normalize
+    #Setup data needed for training & testing 
     x_train = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'tr'] ), axis=0 ).T
-    x_test = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'te'] ), axis=0 ).T
+    x_testall = np.concatenate( ( [np.array( M[key]/255.0 ) for key in M.keys() if key[0:2] == 'te'] ), axis=0 ).T
+    x_test = x_testall[:, 0::2]
+    x_val = x_testall[:, 1::2]
+    
     y_train = format_y(M, 'train')
-    y_test = format_y(M, 'test')
+    y_testall = format_y(M, 'test')
+    y_test = y_testall[:, 0::2]
+    y_val = y_testall[:, 1::2]
+
+
+
+    rates = [1e-3, 5e-5, 1e-4, 1e-5]
+    max_iter = 1000
+    iters = []
+    rd.seed(0)  
+    W = rd.rand(784, 10)
+    b = rd.rand(10, 1)
+    val_acc = optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter)
 
     rate = 1e-4 #parameters for gradient descent
-    max_iter = 300
+    max_iter = 100
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
 
-    W, b = backprop(x_train, y_train, W, b, rate, max_iter, mom=0)
+    W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0)
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)
     print( 'Train Results: ' + str(res.count(1)) + '/' + str(len(res)) )
+    y = no_hidden_layers(x_val, W, b)
+    res = check_results(y_val, y)
+    print( 'Val Results: ' + str(res.count(1)) + '/' + str(len(res)) )
     y = no_hidden_layers(x_test, W, b)
     res = check_results(y_test, y)
     print( 'Test Results: ' + str(res.count(1)) + '/' + str(len(res)) )
@@ -249,13 +279,14 @@ if __name__ == "__main__":     #run directly
 
 
 
-    #Finite Diff
+    #Finite Diff (Part 3)
     h = np.zeros( np.shape(W) )
     h[400,5] = 0.00001
     t = finite_diff(y_test, x_test, W, h, b)
     z, _ = grad(y_test, y, x_test)
     
     
+
 
 
     if False:

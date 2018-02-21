@@ -15,13 +15,16 @@ import glob
 import shutil
 import hashlib
 
-f = 'resources/facescrub_actresses.txt'
-save_to = 'resources/croppedFemale/' #directory for saving images
-gender = 'female' #for saving downloaded and skipped records
+os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 f = 'resources/facescrub_actors.txt'
 save_to = 'resources/croppedMale/'
 gender = 'male'
+
+f = 'resources/facescrub_actresses.txt'
+save_to = 'resources/croppedFemale/' #directory for saving images
+gender = 'female' #for saving downloaded and skipped records
+
 
 act = list(set([a.split("\t")[0] for a in open(f).readlines()])) #"subset_actors.txt"
 
@@ -94,9 +97,9 @@ for a in act:
             
             if os.path.isfile(save_to+filename):
                 sha256 = hashlib.sha256() #reset the hash
-                with open(save_to+filename, 'rb') as f: #most of this code comes from stackoverflow
+                with open(save_to+filename, 'rb') as m: #most of this code comes from stackoverflow
                     while True:
-                        data = f.read(BUF_SIZE)
+                        data = m.read(BUF_SIZE)
                         if not data:
                             break
                         sha256.update(data)
@@ -123,7 +126,7 @@ for a in act:
                     i += 1
                 else:
                     os.remove(save_to+filename)
-                    print('Error: incorrect hash - ' + filename + ' hash: ' + hash)
+                    print('Error: incorrect hash - hash: ' + hash)
                     bad_hash += name + ' ' + line.split()[4] + '\n'
                     no_hashed += 1
             else:
@@ -145,6 +148,6 @@ h.write('Total Downloaded: ' + str(no_downloaded) + '\n')
 h.write(downloaded)
 h.close()
 k = open('resources/hashed_' + gender + '.txt', 'w+') #File containing a list of downloaded files and URLs
-k.write('Total Bad Hashes: ' + str(no_downloaded) + '\n')
+k.write('Total Bad Hashes: ' + str(no_hashed) + '\n')
 k.write(bad_hash)
 k.close()
