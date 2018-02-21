@@ -198,7 +198,7 @@
 
 
    \section{Efficiency of Vectorized Backpropogation}
-   Consider a neural network with $N$ layers each containing $K$ neurons. By convention,
+   Consider a fully connected neural network with $N$ layers each containing $K$ neurons. By convention,
    the input layer will not counted toward $N$ layers, but the final output layer will be
    counted (thus there are $N$ sets of weights and biases that must be learned). Any function
    (such as softmax) applied to the final layer is ignored; none of these conventions will
@@ -243,7 +243,7 @@
 
    The exponential dependence on $N$ also follows intuitively - as adding $N$ layers
    exponentially increases the number of paths from the cost to the weight, and to find
-   the derivative, each of these paths must be followed. 
+   the derivative, each of these paths must be followed.
 
    For vectorized backpropogation, the derivative of the cost with respect to each layer
    can be computed using the cached values and matrix multiplication. Ignoring the complexity
@@ -261,6 +261,7 @@
    Thus the complexity of vectorized backpropogation with caching is $O(N K^3)$ for a
    network with $N$ layers (excluding the input layer) each of $K$ neurons.
 
+   SUMMARY
 
 
 
