@@ -251,21 +251,20 @@ if __name__ == "__main__":     #run directly
 
 
 
-    rates = [1e-3, 5e-5, 1e-4, 1e-5]
+    rates = [1e-3, 1e-4, 5e-5, 1e-5]
     max_iter = 1000
-    iters = []
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
     val_acc = optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter)
 
     rate = 1e-4 #parameters for gradient descent
-    max_iter = 100
+    max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
 
-    W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0)
+    W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename='part4.jpg')
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)
     print( 'Train Results: ' + str(res.count(1)) + '/' + str(len(res)) )
