@@ -197,8 +197,8 @@
 
 
 
-   \section{Vectorized Backpropogation}
-   Consider a neural network with $N$ layers each containing $K$ neurons. By convention,
+   \section{Efficiency of Vectorized Backpropogation}
+   Consider a fully connected neural network with $N$ layers each containing $K$ neurons. By convention,
    the input layer will not counted toward $N$ layers, but the final output layer will be
    counted (thus there are $N$ sets of weights and biases that must be learned). Any function
    (such as softmax) applied to the final layer is ignored; none of these conventions will
@@ -211,22 +211,57 @@
 
    Denote each layer by the numbers $1,2... N$ (we can refer to the input layer as layer $0$).
    The efficiency of computing the gradient with respect to a weight to/from a particular layer
-   does not depend on which weight it is, so $w^{a \rightarrow b}$ can stand for an arbitrary weight from
-   layer $a$ to $b$. A particular neuron in layer $n$ will be denoted by $\sigma^n$ with a
-   subscript to denote that only on neuron in the layer is intended.
+   does not depend on which weight it is, so $w^{a}$ can stand for an arbitrary weight from
+   layer $a-1$ to $a$. A particular neuron in layer $n$ will be denoted by $\sigma^n$ with a
+   subscript to denote that one specific neuron in the layer is intended (the one which the
+   weight under consideration leads to).
 
    Then the following holds: %h, m, q
       \begin{equation*} \begin{split}
-        \frac{ \partial C}{ \partial w^{N-1 \rightarrow N} }
-           &= \frac{ \partial C}{ \partial \sigma^N_q }  \frac{ \partial \sigma^N_q}{ \partial w^{N-1 \rightarrow N} } \\
-        \frac{ \partial C}{ \partial w^{N-2 \rightarrow N-1} }
-           &= \sum_q \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}  \frac{ \partial \sigma^{N-1}_m }{ \partial w^{N-1 \rightarrow N} } \\
+        \frac{ \partial C}{ \partial w^{N} }
+           &= \frac{ \partial C}{ \partial \sigma^N_q }  \frac{ \partial \sigma^N_q}{ \partial w^{N} } \\
+        \frac{ \partial C}{ \partial w^{N-1} }
+           &= \sum_q^K \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}  \frac{ \partial \sigma^{N-1}_m }{ \partial w^{N-1} } \\
+        \frac{ \partial C}{ \partial w^{N-2} }
+           &= \sum_q^K \sum_h^K \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}   \frac{ \partial \sigma^{N-1}_m }{\partial \sigma^{N-2}_h}   \frac{ \partial \sigma^{N-2}_h }{ \partial w^{N-1} } \\
       \end{split} \end{equation*}
-   Since there are $K$ neurons in each layer,
+   Again, in each case, the derivative of the last neuron ($\sigma_q, \sigma_m, \sigma_h$ respectively in the
+   equalities above) with respect to a weight leading to that layer refers to the neuron where
+   that weight terminates.
+   Since there are $K$ neurons in each layer, each sum goes up to $K$.
 
-   THE ABOVE NOTAION IS REALLY CONFUSING, I'LL TRY TO IMPROVE IT
+   With $K$ neurons in each layer, there are $K^2$ weights between layers; thus the efficiency of
+   finding $ \frac{ \partial C}{ \partial w^{N} } $ for a specific weight is $O(1)$, but for
+   all the weights is $O(K^2)$.
+   For a specific weight into layer $N-1$, the efficiency would be $O(K)$; scaling this to
+   all the weights is $O(K^3)$, since the results for other weights are not cached.
+   Continuing this trend backward, the efficiency of finding the derivative of all the weights
+   into the second hidden layer is $O(K^{N-1})$ JUSTIFY IN MORE DETAIL.
+   If we make the simplifying assumption that there are $K$ input neurons, then the efficiency
+   of finding all the derivatives for the weights in the first layer is $O(K^{N})$.
+   Taking only the highest order, gives an overall efficiency of $O(K^{N})$.
 
+   The exponential dependence on $N$ also follows intuitively - as adding $N$ layers
+   exponentially increases the number of paths from the cost to the weight, and to find
+   the derivative, each of these paths must be followed.
 
+   For vectorized backpropogation, the derivative of the cost with respect to each layer
+   can be computed using the cached values and matrix multiplication. Ignoring the complexity
+   of carrying the derivative through the activation function, the derivative with respect to
+   each weight between layers $N-1$ and $N$ requires just one matrix multiplication.
+   Moving backward through each layer adds one more matrix multiplication.
+   With each layer having $K$ neurons, these matrices have dimension $K$ by $K$.
+   The complexity of matrix multiplicaion is polynomial in their dimensions; multiplying two
+   $K$ by $K$ matrices has complexity $O(K^3)$ (there are algorithms with slightly lower powers,
+   but we'll take $3$ as a baseline here). Therefore, to compute the gradient with respect to all
+   the weights from the input to the first hidden layer is $O(N K^3)$, and if this is done
+   one matrix at a time (i.e. propogating backwards one layer at a time), the derivative
+   with respect to all the intermediate weights falls out at no extra cost (they are the
+   result of already computed matrix multiplications).
+   Thus the complexity of vectorized backpropogation with caching is $O(N K^3)$ for a
+   network with $N$ layers (excluding the input layer) each of $K$ neurons.
+
+   SUMMARY
 
 
 

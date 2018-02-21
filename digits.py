@@ -160,11 +160,13 @@ def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filena
 
 def optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter, mom=0):
     val_acc = []
+    k = 0
     for rate in rates:
+        k += 1
         rd.seed(0)  
         W = rd.rand(784, 10)
         b = rd.rand(10, 1)
-        W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0)
+        W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename='part4_optimize'+str(k)+'.jpg' )
         y = no_hidden_layers(x_val, W, b) #the network guesses for the validation set
         res = check_results(y_val, y)
         val_acc += [ res.count(1)/len(res) ]
@@ -250,8 +252,8 @@ if __name__ == "__main__":     #run directly
     y_val = y_testall[:, 1::2]
 
 
-
-    rates = [1e-3, 1e-4, 5e-5, 1e-5]
+    #find the best learning rate
+    rates = [1e-3, 1e-4, 5e-5, 1e-5, 1e-6]
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
@@ -263,7 +265,6 @@ if __name__ == "__main__":     #run directly
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-
     W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename='part4.jpg')
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)

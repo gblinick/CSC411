@@ -6,8 +6,13 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
   
 
+os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+
 M = loadmat("mnist_all.mat")
 
+def format_data():
+    return
+    
 
 
 def get_test(M):
@@ -60,3 +65,28 @@ train_idx = np.random.permutation(range(train_x.shape[0]))[:1000]
 x = Variable(torch.from_numpy(train_x[train_idx]), requires_grad=False).type(dtype_float)
 y_classes = Variable(torch.from_numpy(np.argmax(train_y[train_idx], 1)), requires_grad=False).type(dtype_long)
 #################################################################################
+
+
+model = torch.nn.Sequential(
+    torch.nn.Linear(dim_x, dim_h),
+    torch.nn.ReLU(),
+    torch.nn.Linear(dim_h, dim_out),
+)
+
+loss_fn = torch.nn.CrossEntropyLoss()
+
+learning_rate = 1e-2
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+for t in range(10000):
+    y_pred = model(x)
+    loss = loss_fn(y_pred, y_classes)
+    
+    model.zero_grad()  # Zero out the previous gradient computation
+    loss.backward()    # Compute the gradient
+    optimizer.step()   # Use the gradient information to 
+                       # make a step
+
+x = Variable(torch.from_numpy(test_x), requires_grad=False).type(dtype_float)
+y_pred = model(x).data.numpy()
+
+np.mean( np.argmax(y_pred, 1) == np.argmax(test_y, 1) )
