@@ -190,34 +190,28 @@ if __name__ == "__main__":
     test_x, test_y = get_set_data(data, acts, 'test')
     
     #use validation set to optimize hyper-parameters
-    #optimize_params(train_x, train_y, val_x, val_y, test_x, test_y)
+    optimize_params(train_x, train_y, val_x, val_y, test_x, test_y)
 
-    #set chosen hyper-parameters
-    dim_h = 25      #started at 20
-    rate = 1e-3
-    no_epochs = 10
-    iter = 1000      #iterations per mini_batch
-    params = (dim_h, rate, no_epochs, iter)
-    
+    #set chosen hyper-parameters    
     dim_h = 25      #started at 20
     rate = 1e-3
     no_epochs = 5
     iter = 1000      #iterations per mini_batch
     params = (dim_h, rate, no_epochs, iter)
     train_acc, val_acc, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, params)
-    print('Train Acc: ' + str(train_acc) )
-    print('Val Acc: ' + str(val_acc) )
+    print('Final Train Acc: ' + str(train_acc[len(train_acc) -1]) )
+    print('Final Val Acc: ' + str(val_acc[len(val_acc)-1]) )
     print('Test Res: ' + str(test_res) )
     
     if True:
-        filename = 'part8_c.jpg'
+        filename = 'part8.jpg'
         epochs = np.linspace(1, no_epochs*6, no_epochs*6)
         plt.scatter(epochs, train_acc, label='Training Data')
         plt.scatter(epochs, val_acc, label='Validation Data')
         plt.title('Learning Curve')
-        plt.xlabel('number of epochs')
+        plt.xlabel('number of mini-batches')
         plt.ylabel('accuracy')
         plt.legend()
-        #plt.savefig('resources/' + filename)
-        plt.show()
+        plt.savefig('resources/' + filename)
+        #plt.show()
         plt.close()

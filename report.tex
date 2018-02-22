@@ -48,7 +48,7 @@
 \frenchspacing                   %removes extra spacing after a period at the end of a sentence.
 \newdateformat{daymonthyear}{\THEDAY\ \monthname\ \THEYEAR}
 
-\title{CSC411 Machine Learning \\ Project 2: Deep Neural Network}
+\title{CSC411 Machine Learning \\ Project 2: Deep Neural Networks}
 \author{ Ariel Kelman \\ Student No: 1000561368
          \\ \\
          Gideon Blinick \\ Student No: 999763000 }
@@ -74,11 +74,16 @@
          was generated using \texttt{plot\_samples()}. }
    \end{figure}
    The data was downloaded from the assignment webpage, and imported into Python using the
-   provided code. The data was already divided into training and testing sets...
+   provided code. The data was already divided into training and testing sets.
 
    \subsection{Results \& Report Reproducibility}
-   All results and plots can be generated using the python file...
-   To reproduce the report, simply run it through latex.
+   All results and plots can be generated using the appropriate python files.
+   Code for sections 1-6 can be found in \texttt{digits.py}, for part 8 and 9 in \texttt{deepfaces.py},
+   and for part 10...
+   Running the code will save all generated images in the \texttt{resources} folder,
+   where they are used by \LaTeX. Note that some of the sections require the code for
+   other sections to be run first.
+   To reproduce the report, simply run it through \LaTeX.
 
 
    \section{The Network}
@@ -86,13 +91,14 @@
    output passed through a softmax layer to estimated probabilities.
 
    \begin{lstlisting}[language=Python]
+
       def no_hidden_layers(x, W, b):
-	'''Compute the network'''
-   	 #the first column of W contains the weights for output 1
-    	 # W is (784x10), x is (784x60 000) and b is (10x60 000)
-    	 # So L1 is (10x60000)
-   	 L1 = np.dot(W.T, x) + tile(b, (1, np.shape(x)[1] ) )
-  	 return softmax(L1)
+   	    '''Compute the network'''
+      	 #the first column of W contains the weights for output 1
+       	 # W is (784x10), x is (784x60 000) and b is (10x60 000)
+       	 # So L1 is (10x60000)
+      	 L1 = np.dot(W.T, x) + tile(b, (1, np.shape(x)[1] ) )
+     	 return softmax(L1)
    \end{lstlisting}
 
    The network is described by the weights and biases from the 784 = 28*28 inputs
@@ -104,16 +110,14 @@
    column) represents the weight from the $i^{th}$ input to the $j^{th}$ output.
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
-   The biases are represented by a 10 by 1 vector, one entry for each output. We use the tile function on
-   b to produce a matrix that is 10x60000 so that we can add it the dot product of $W^T $ and x. This dot product
-  repesents $\sum_j ( w_{ji} ) x_j$ for each element, which together with $b_i$ form $o_i$, the output to be entered into the
- softmax function.
+   The biases are represented by a 10 by 1 vector, one entry for each output. We use the \texttt{tile()} function
+   to duplicate the biasses $b$ up to appropirate dimensions (10 by 60000) to be added to the result of $W^T X$.
 
    Throughout the code, $y\_$ is a matrix representing the correct results for each image; each column is a
    vector of zeros with a 1 in the place representing the correct digit.
    $y$ is a matrix representing the output probabilities from the network of the same dimensions
-   as $y\_$; each column is a vector representing the probabilities for each digit for a
-   particular sample.
+   as $y\_$ (in the derivations below, as well as some comments on the code, $p$ is used in place of $y$);
+   each column is a vector representing the probabilities for each digit for a particular sample.
 
    \section{Gradient}
    The cost function is taken to be $- \sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
@@ -167,6 +171,7 @@
    The following code computes the gradient with respect to the wieghts and biases
    (representing all input training images in a matrix $X$, 784 by the number of samples, in this case 60000):
       \begin{lstlisting}[language=Python]
+
          def grad(y_, y, x):
       	   '''Compute the gradient wrt weights and biases'''
           	#y and y_ have dimension (10x60000)
@@ -337,11 +342,12 @@
    start of each epoch (6 mini-batches per epoch), using \texttt{Adam} as the optimizer.
    The weights and biases were initialized randomly using torche's \texttt{randn()} function.
    The following figure shows the learning curve for the training and validation sets for the training
-   with the final parameters: learning rate of XXX, 25 hidden neurons, and 5 epochs each with 6 mini-batches
+   with the final parameters: learning rate of $10^{-3}$, 25 hidden neurons, and 5 epochs each with 6 mini-batches
    of 1000 iterations.
       \begin{figure}[h] \centering
          \includegraphics[width=4in]{resources/part8}
-         \caption{Learning Curve}
+         \caption{Learning Curve: the osciallations are due to changing the training set
+                  using mini-batches. There are six mini-batches to an epoch.}
        \end{figure}
 
    Because of the large number of hyperparameters (learning rate, number of epochs, size of the
@@ -350,11 +356,23 @@
    Rather than iteratively fully exploring a subspace of possible hyperparameters (which would grow
    extremely quickly even for few choices for each parameter), the function \texttt{optimize\_params()}
    was used to sample several options, and was run several times with different divisions into
-   training/validation/testing sets (changed by setting the seed in \texttt{format\_data()} to 0, 1, and 2).
+   training/validation/testing sets (changed by setting the seed in \texttt{format\_data()} to 0, 1, 2, and 3).
    The validation results for each set of parameters were then approximately averaged, and that result
    led to a choice of trial 2 (as defined in the \texttt{optimize\_params()} function), i.e. the parameters
-   given above.
+   given above. Small changes around these values (particularly increasing the number of epochs)
+   had small effects on the results.
 
-   These parameters
+   These parameters give a final training accuracy of 99.5\%, validation accuracy of 83.8\%, and
+   testing accuracy of 81.7\% (when the data seed is set to 2). While the validation set did have an effect on training through the
+   choice of hyper-parameters, this is mitigated by the cross-validation; taking it to be part of
+   the testing set gives an accuracy of 82.8\%.
+   Averaging the testing accuracy (again including the validation set) over the cross-validation
+   samples (i.e. seed of 0,1,2,3) gives an accuracy of 80.5\%.
+
+
+   \section{Visualizing Weights}
+   The following image...
+
+   \section{AlexNet}
 
 \end{document}
