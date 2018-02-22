@@ -54,21 +54,6 @@ def get_set_data(M, acts, set):
         batch_y_s = np.vstack((batch_y_s,   np.tile(one_hot, (len(M[set_k[k]]), 1))   ))
     return batch_xs, batch_y_s
 
-'''
-def get_train(M,acts):
-    
-    batch_xs = np.zeros((0, 32*32))
-    batch_y_s = np.zeros( (0, 12))
-    train_k = ['train_'+act for act in acts]
-    
-    for k in range(12):
-        batch_xs = np.vstack((batch_xs, ((np.array(M[train_k[k]])[:])/255.)  ))
-        one_hot = np.zeros(12)
-        one_hot[k] = 1
-        batch_y_s = np.vstack((batch_y_s,   np.tile(one_hot, (len(M[train_k[k]]), 1))   ))
-    return batch_xs, batch_y_s
-'''
-
 
 def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
     dim_h, rate, no_epochs, iter = params
