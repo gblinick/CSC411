@@ -223,7 +223,7 @@ def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):  #provided by profs
 
 
 
-if __name__ == "__main__":     #run directly
+if __name__ == "__main__":  
 
 
     M = loadmat("mnist_all.mat") #Load the MNIST digit data
