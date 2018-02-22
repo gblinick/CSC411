@@ -86,7 +86,13 @@
    output passed through a softmax layer to estimated probabilities.
 
    \begin{lstlisting}[language=Python]
-      def no_hidden_layers():
+      def no_hidden_layers(x, W, b):
+	'''Compute the network'''
+   	 #the first column of W contains the weights for output 1
+    	 # W is (784x10), x is (784x60 000) and b is (10x60 000)
+    	 # So L1 is (10x60000)
+   	 L1 = np.dot(W.T, x) + tile(b, (1, np.shape(x)[1] ) )
+  	 return softmax(L1)
    \end{lstlisting}
 
    The network is described by the weights and biases from the 784 = 28*28 inputs
@@ -98,7 +104,10 @@
    column) represents the weight from the $i^{th}$ input to the $j^{th}$ output.
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
-   The biases are represented by a 10 by 1 vector, one entry for each output.
+   The biases are represented by a 10 by 1 vector, one entry for each output. We use the tile function on 
+   b to produce a matrix that is 10x60000 so that we can add it the dot product of $W^T $ and x. This dot product
+  repesents $\sum_j ( w_{ji} ) x_j$ for each element, which together with $b_i$ form $o_i$, the output to be entered into the 
+ softmax function.
 
    Throughout the code, $y\_$ is a matrix representing the correct results for each image; each column is a
    vector of zeros with a 1 in the place representing the correct digit.
@@ -156,19 +165,60 @@
 
    \subsection{Vectorized Gradient Code}
    The following code computes the gradient with respect to the wieghts and biases
-   (representing all input training images in a matrix $X$, 784 by the number of samples) gives
+   (representing all input training images in a matrix $X$, 784 by the number of samples, in this case 60 000) gives
       \begin{lstlisting}[language=Python]
-         def grad():
+         def grad(y_, y, x):
+	'''Compute the gradient wrt weights and biases'''
+    	#y and y_ have dimension (10x60000)
+    	#x has dimension (784x60 000)
+    
+    	diff = (y - y_) #y is output of softmax
+        	# diff is p_j - y_j
+    
+    	grad_W = np.dot( x, diff.T )
+    	grad_b = np.sum( diff, 1)  #could try with np.mean()
+    	grad_b = np.reshape(10,1)
+    
+    return  grad_W, grad_b
       \end{lstlisting}
 
+   The above code works  by creating a matrix  $\frac{ \partial C}{ \partial \textbf{W} }$ which is of dimension 784x10 
+  (for the 7840 weights), and where each element contains $\frac{ \partial C}{ \partial w_{ij} }$ for some i,j.
+  It does this by implementing $\sum_s ( p_j - y_j ) x_i$ for each matrix element, where i increases as you go down
+  a column (from 1 to 784) and j increases as you go accross a row (from 1 to 10). Each element itself contains 60000
+  terms added together to aggregate the information from all samples.
 
    \section{Training}
    The neural network was trained on the full training set of $60000$ images without momentum.
-   A learning rate of $xxx$ was used for $xxx$ iterations, giving a training accuracy of $xxx$
-   and a testing accuracy of $xxx$.
+   A learning rate of $1 \cdot 10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $92.6\%$
+   and a testing accuracy of $92.2\%$.
    The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
 
-   The following figure shows a learning curve...
+   The following figure shows a learning curve:
+  \begin{figure}[H] \centering
+      \includegraphics[width=4in]{resources/part4}
+      \caption{accuracy vs. number of iteration for learning rate of $10^-4$ \texttt{plot\_samples()}. }
+   \end{figure}
+
+  The following figure shows the weights:
+  \begin{figure}[H] \centering
+      \includegraphics[width=4in]{resources/weights}
+      \caption{weight diagrams }
+   \end{figure}
+
+
+  \subsection {Implementation Details:} 
+  For this section, we initialized our weights randomely using the 
+ \begin{lstlisting}[language=Python]
+  	rd.rand(784, 10) 
+\end{lstlisting}
+ function.
+  This is so that gradient descent can be run starting from a point where the neural network's guess is equivalent to chance.
+  The learning rate we used was $10^{-4}$. This was used because it produced the greatest accuracy on our validation ($91.5\%$) when compared with
+  $10^{-3}$,$5 \cdot 10^{-5}$,$10^{-5}$, and $10^{-6}$. 
+
+
+
 
    \section{Training with Momentum}
    The neural network was trained on the full training set of $60000$ images with momentum, set to $xxx$.
