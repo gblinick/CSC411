@@ -159,16 +159,31 @@ def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filena
     
     return W, b
 
-def optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter, mom=0):
+def optimize_learning(learning_rates, x_train, y_train, x_val, y_val, W, b, max_iter, mom=0):
     # Part 4
     val_acc = []
     k = 0
-    for rate in rates:
+    for rate in learning_rates:
         k += 1
         rd.seed(0)  
         W = rd.rand(784, 10)
         b = rd.rand(10, 1)
         W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename='part4_optimize'+str(k)+'.jpg' )
+        y = no_hidden_layers(x_val, W, b) #the network guesses for the validation set
+        res = check_results(y_val, y)
+        val_acc += [ res.count(1)/len(res) ]
+    return val_acc
+
+def optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates):
+    # Part 5
+    val_acc = []
+    k = 0
+    for momentum in momentum_rates:
+        k += 1
+        rd.seed(0)  
+        W = rd.rand(784, 10)
+        b = rd.rand(10, 1)
+        W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, momentum, filename='part5_optimize_momentum'+str(k)+'.jpg' )
         y = no_hidden_layers(x_val, W, b) #the network guesses for the validation set
         res = check_results(y_val, y)
         val_acc += [ res.count(1)/len(res) ]
@@ -261,34 +276,59 @@ if __name__ == "__main__":
 
     #find the best learning rate
     #rates = [1e-3, 1e-4, 5e-5, 1e-5, 1e-6]
-    rates = [1e-4, 1e-5]
+    learning_rates = [1e-4, 1e-5]
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    #val_acc = optimize_params(rates, x_train, y_train, x_val, y_val, W, b, max_iter)
+    #val_acc = optimize_learning(learning_rates, x_train, y_train, x_val, y_val, W, b, max_iter)
 
-    rate = 1e-4 #parameters for gradient descent
+    #find the best momentum rate
+    momentum_rates = [0.8, 0.85, 0.9]
+    learning_rate = 1e-4
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    # Part 4.1.1: Plot the learning curves. 
-    W, b = backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename='part4.jpg')
+    #val_acc = optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates)
+
+    #Part 4
+    learning_rate = 1e-4 #parameters for gradient descent
+    max_iter = 1000
+    rd.seed(0)  
+    W = rd.rand(784, 10)
+    b = rd.rand(10, 1)
+    W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, mom=0, filename='part4.jpg')
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)
-    print( 'Train Results: ' + str(res.count(1)) + '/' + str(len(res)) )
+    print( 'Train Results (without momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
     y = no_hidden_layers(x_val, W, b)
     res = check_results(y_val, y)
-    print( 'Val Results: ' + str(res.count(1)) + '/' + str(len(res)) )
+    print( 'Val Results (without momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
     y = no_hidden_layers(x_test, W, b)
     res = check_results(y_test, y)
-    print( 'Test Results: ' + str(res.count(1)) + '/' + str(len(res)) )
+    print( 'Test Results (without momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
 
     #Part 4.2: Display the weights going into each of the output units.
-    image_W(W, filename='weights.jpg')
+    #image_W(W, filename='weights.jpg')
     
-    
+    #Part 5
+    learning_rate = 1e-4 #parameters for gradient descent
+    momentum_rate = 0.8 #optimal value based on tests
+    max_iter = 1000
+    rd.seed(0)  
+    W = rd.rand(784, 10)
+    b = rd.rand(10, 1)
+    W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, mom=momentum_rate, filename='part5.jpg')
+    y = no_hidden_layers(x_train, W, b)
+    res = check_results(y_train, y)
+    print( 'Train Results (wit momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
+    y = no_hidden_layers(x_val, W, b)
+    res = check_results(y_val, y)
+    print( 'Val Results (with momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
+    y = no_hidden_layers(x_test, W, b)
+    res = check_results(y_test, y)
+    print( 'Test Results (with momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
     
     
     

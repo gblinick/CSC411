@@ -190,14 +190,14 @@
 
    \section{Training}
    The neural network was trained on the full training set of $60000$ images without momentum.
-   A learning rate of $1 \cdot 10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $92.6\%$
-   and a testing accuracy of $92.2\%$.
+   A learning rate of $1 \cdot 10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $92.7\%$
+   and a testing accuracy of $91.8\%$.
    The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
 
    The following figure shows a learning curve:
   \begin{figure}[H] \centering
       \includegraphics[width=4in]{resources/part4}
-      \caption{accuracy vs. number of iteration for learning rate of $10^-4$ \texttt{plot\_samples()}. }
+      \caption{accuracy vs. number of iteration for learning rate of $10^{-4}$}
    \end{figure}
 
   The following figure shows the weights:
@@ -221,13 +221,95 @@
 
 
    \section{Training with Momentum}
-   The neural network was trained on the full training set of $60000$ images with momentum, set to $xxx$.
-   A learning rate of $xxx$ was used for $xxx$ iterations, giving a training accuracy of $xxx$
+   The neural network was trained on the full training set of $60000$ images with momentum, set to $0.8$.
+   A learning rate of $1 \cdot 10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $xxx$
    and a testing accuracy of $xxx$.
    The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
 
-   The following figure shows a learning curve...
+   The following figure shows the learning curves:
+ \begin{figure}[H] \centering
+      \includegraphics[width=4in]{resources/part5}
+      \caption{learning curves for neural network  with momentum of 0.8}
+   \end{figure}
 
+  Our new learning curve for training performs better than the learning curve without momentum,
+ but the learning curve for testing performs slightly worse (taking the accuracy after 1000 iterations).
+ Without momentum, a success rate of $ 92.7\%$ and $ 91.8\%$ were achieved on the training and test sets, respectively, 
+ after 1000 iterations.
+ With  momentum,  a success rate of $93.2\%$ and $91.6\%$ were achieved on the training and test sets, respectively, 
+ after 1000 iterations.
+
+  The backpropogation algorithm from part 4 was altered for this part to accomodate momentum.
+  A momentum term (set by default to 0) was added, along with  the corresponding update equations
+  for W and b that make use of the momentum term.  
+ Thus, our new backprogation function was implemented as:
+ \begin{lstlisting}[language=Python]
+  	def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filename=''):
+    # Part 4
+    iter_acc = []
+    train_acc = []
+    test_acc = []
+    
+    nu_W = np.zeros( np.shape(W) )
+    nu_b = np.zeros( np.shape(b) )
+    
+    iter = 0
+    while iter <= max_iter:
+        y = no_hidden_layers(x_train, W, b)
+        #prevW = W.copy()        #don't need
+        
+        grad_W, grad_b = grad(y_train, y, x_train)
+        nu_W = mom*nu_W + rate*grad_W
+        nu_b = mom*nu_b + rate*grad_b
+        W -= nu_W
+        b -= nu_b
+        
+        if iter%50 == 0:
+            iter_acc += [iter]
+            
+            y = no_hidden_layers(x_train, W, b)
+            res = check_results(y_train, y)
+            #print( 'Train Results: ' + str(res.count(1)) + '/' + str(len(res)) )
+            train_acc += [ res.count(1)/len(res) ]
+            
+            y = no_hidden_layers(x_val, W, b)
+            res = check_results(y_val, y)
+            #print( 'Test Results: ' + str(res.count(1)) + '/' + str(len(res)) ) 
+            test_acc += [ res.count(1)/len(res) ]
+        iter += 1
+    
+    #Part 4.1.1: Plot the learning curves. 
+    if filename:
+        plt.scatter(iter_acc, train_acc, label='Training Data')
+        plt.scatter(iter_acc, test_acc, label='Test Data')
+        plt.title('Learing Curve')
+        plt.xlabel('number of iterations')
+        plt.ylabel('accuracy')
+        plt.legend()
+        plt.savefig('resources/' + filename)
+        #plt.show()
+        plt.close()
+    
+    return W, b
+\end{lstlisting}
+
+ The following function was implemented in order to determine the optimal value for our momentum variable:
+ \begin{lstlisting}[language=Python]
+  	def optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates):
+    # Part 5
+    val_acc = []
+    k = 0
+    for momentum in momentum_rates:
+        k += 1
+        rd.seed(0)  
+        W = rd.rand(784, 10)
+        b = rd.rand(10, 1)
+        W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, momentum, filename='part5_optimize_momentum'+str(k)+'.jpg' )
+        y = no_hidden_layers(x_val, W, b) #the network guesses for the validation set
+        res = check_results(y_val, y)
+        val_acc += [ res.count(1)/len(res) ]
+    return val_acc
+\end{lstlisting}
 
    \section{Analysis of Momentum}
    For the analysis in this section, the weights $w_{ab}$ and $w_{cd}$ were used (recall that $W$ is
