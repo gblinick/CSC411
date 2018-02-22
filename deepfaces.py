@@ -1,6 +1,7 @@
 from torch.autograd import Variable
 import torch
 import numpy as np
+from numpy import random as rd
 import matplotlib.pyplot as plt
 
 from scipy.io import loadmat
@@ -32,8 +33,8 @@ def format_data():
         
         trsize = trsizes[act]
         trdata = x[:trsize, :] #training set for act
-        vadata = x[trsize+10:trsize+10, :] #validation set for act
-        tedata = x[trsize:trsize+10, :] #testing set for act
+        vadata = x[trsize:trsize+10, :] #validation set for act
+        tedata = x[trsize+10:trsize+20, :] #testing set for act
         
         data['train_'+act] = trdata
         data['val_'+act] = vadata
@@ -102,7 +103,7 @@ train_x, train_y = get_train(data, acts)
 test_x, test_y = get_test(data, acts)
 
 dim_x = 32*32
-dim_h = 20
+dim_h = 25 #20
 dim_out = 12
 
 dtype_float = torch.FloatTensor
@@ -110,13 +111,11 @@ dtype_long = torch.LongTensor
 
 
 
-################################################################################
 #Subsample the training set for faster training
-
-train_idx = np.random.permutation(range(train_x.shape[0]))[:1000]
+rd.seed(0)
+train_idx = np.random.permutation(range(train_x.shape[0]))[:]
 x = Variable(torch.from_numpy(train_x[train_idx]), requires_grad=False).type(dtype_float)
 y_classes = Variable(torch.from_numpy(np.argmax(train_y[train_idx], 1)), requires_grad=False).type(dtype_long)
-#################################################################################
 
 
 model = torch.nn.Sequential(
@@ -129,7 +128,7 @@ loss_fn = torch.nn.CrossEntropyLoss()
 
 learning_rate = 1e-2
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-for t in range(10000):
+for t in range(20000):
     y_pred = model(x)
     loss = loss_fn(y_pred, y_classes)
     
@@ -142,3 +141,8 @@ x = Variable(torch.from_numpy(test_x), requires_grad=False).type(dtype_float)
 y_pred = model(x).data.numpy()
 
 res = np.mean( np.argmax(y_pred, 1) == np.argmax(test_y, 1) )
+
+x = Variable(torch.from_numpy(train_x), requires_grad=False).type(dtype_float)
+y_pred = model(x).data.numpy()
+
+res2 = np.mean( np.argmax(y_pred, 1) == np.argmax(train_y, 1) )
