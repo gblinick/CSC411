@@ -199,7 +199,7 @@
 
    \section{Efficiency of Vectorized Backpropogation}
    Consider a fully connected neural network with $N$ layers each containing $K$ neurons. By convention,
-   the input layer will not counted toward $N$ layers, but the final output layer will be
+   the input layer will not be counted toward $N$ layers, but the final output layer will be
    counted (thus there are $N$ sets of weights and biases that must be learned). Any function
    (such as softmax) applied to the final layer is ignored; none of these conventions will
    affect the asymptotic runtime. We also assume that the results of the forward pass of the
@@ -223,7 +223,7 @@
         \frac{ \partial C}{ \partial w^{N-1} }
            &= \sum_q^K \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}  \frac{ \partial \sigma^{N-1}_m }{ \partial w^{N-1} } \\
         \frac{ \partial C}{ \partial w^{N-2} }
-           &= \sum_q^K \sum_h^K \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}   \frac{ \partial \sigma^{N-1}_m }{\partial \sigma^{N-2}_h}   \frac{ \partial \sigma^{N-2}_h }{ \partial w^{N-1} } \\
+           &= \sum_q^K \sum_m^K \frac{ \partial C}{ \partial \sigma^{N}_q }  \frac{ \partial \sigma^{N}_q }{\partial \sigma^{N-1}_m}   \frac{ \partial \sigma^{N-1}_m }{\partial \sigma^{N-2}_h}   \frac{ \partial \sigma^{N-2}_h }{ \partial w^{N-2} } \\
       \end{split} \end{equation*}
    Again, in each case, the derivative of the last neuron ($\sigma_q, \sigma_m, \sigma_h$ respectively in the
    equalities above) with respect to a weight leading to that layer refers to the neuron where
@@ -236,9 +236,9 @@
    For a specific weight into layer $N-1$, the efficiency would be $O(K)$; scaling this to
    all the weights is $O(K^3)$, since the results for other weights are not cached.
    Continuing this trend backward, the efficiency of finding the derivative of all the weights
-   into the second hidden layer is $O(K^{N-1})$ JUSTIFY IN MORE DETAIL.
+   into the second hidden layer is $O(K^{N})$ JUSTIFY IN MORE DETAIL.
    If we make the simplifying assumption that there are $K$ input neurons, then the efficiency
-   of finding all the derivatives for the weights in the first layer is $O(K^{N})$.
+   of finding all the derivatives for the weights in the first layer is $O(K^{N+1})$.
    Taking only the highest order, gives an overall efficiency of $O(K^{N})$.
 
    The exponential dependence on $N$ also follows intuitively - as adding $N$ layers
