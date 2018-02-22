@@ -32,7 +32,7 @@ def format_data(acts, trsizes, folders, rd_seed=0):
         trsize = trsizes[act]
         trdata = x[:trsize, :] #training set for act
         tedata = x[trsize:trsize+10, :] #testing set for act
-        vadata = x[trsize+10:trsize+20, :] #validation set for act
+        vadata = x[trsize+10:trsize+30, :] #validation set for act
         
         data['train_'+act] = trdata
         data['val_'+act] = vadata
@@ -81,6 +81,9 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
     train_acc = [] #will hold data for learning curve
     val_acc = []
     
+    torch.manual_seed(0)
+    #torch.manual_seed_all(0)
+    
     #set up PyTorch model
     model = torch.nn.Sequential(
         torch.nn.Linear(dim_x, dim_h),
@@ -108,7 +111,7 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
                 model.zero_grad()  # Zero out the previous gradient computation
                 loss.backward()    # Compute the gradient
                 optimizer.step()   # Use the gradient information to make a step
-    
+            
             #Get results on train set
             x = Variable(torch.from_numpy(train_x), requires_grad=False).type(dtype_float)
             y_pred = model(x).data.numpy()
@@ -121,8 +124,7 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
             
             train_acc += [train_res]
             val_acc += [val_res]
-    
-    
+
     #Get results on test set
     x = Variable(torch.from_numpy(test_x), requires_grad=False).type(dtype_float)
     y_pred = model(x).data.numpy()
@@ -171,14 +173,7 @@ def optimize_params(train_x, train_y, val_x, val_y, test_x, test_y):
 
 
 if __name__ == "__main__": 
-    '''
-    acts_m = ['hader', 'butler', 'carell', 'radcliffe', 'baldwin', 'vartan']
-    acts_f = ['harmon', 'bracco', 'gilpin', 'drescher', 'chenoweth', 'ferrera']
-    acts = acts_m + acts_f
-    
-    trsizes = {'hader':79, 'butler':79, 'carell':79, 'radcliffe':79, 'baldwin':79, 'vartan':79}
-    trsizes.update( {'harmon':79, 'bracco':79, 'gilpin':39, 'drescher':79, 'chenoweth':79, 'ferrera':79} )
-    '''
+
     
     #Set up data
     acts_m = ['hader', 'carell', 'baldwin']
@@ -187,7 +182,7 @@ if __name__ == "__main__":
     folders = ['resources/croppedMale']*3 + ['resources/croppedFemale']*3
     trsizes = {'hader':70, 'carell':70, 'baldwin':70, 'harmon':70, 'bracco':70, 'gilpin':37}
     
-    data = format_data(acts, trsizes, folders)
+    data = format_data(acts, trsizes, folders, 2) #changing seed gives different results
     
     #get & format training, validation, test sets
     train_x, train_y = get_set_data(data, acts, 'train')
@@ -195,7 +190,7 @@ if __name__ == "__main__":
     test_x, test_y = get_set_data(data, acts, 'test')
     
     #use validation set to optimize hyper-parameters
-    optimize_params(train_x, train_y, val_x, val_y, test_x, test_y)
+    #optimize_params(train_x, train_y, val_x, val_y, test_x, test_y)
 
     #set chosen hyper-parameters
     dim_h = 25      #started at 20
@@ -204,13 +199,18 @@ if __name__ == "__main__":
     iter = 1000      #iterations per mini_batch
     params = (dim_h, rate, no_epochs, iter)
     
+    dim_h = 25      #started at 20
+    rate = 1e-3
+    no_epochs = 5
+    iter = 1000      #iterations per mini_batch
+    params = (dim_h, rate, no_epochs, iter)
     train_acc, val_acc, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, params)
     print('Train Acc: ' + str(train_acc) )
     print('Val Acc: ' + str(val_acc) )
     print('Test Res: ' + str(test_res) )
     
     if True:
-        filename = 'part8_b.jpg'
+        filename = 'part8_c.jpg'
         epochs = np.linspace(1, no_epochs*6, no_epochs*6)
         plt.scatter(epochs, train_acc, label='Training Data')
         plt.scatter(epochs, val_acc, label='Validation Data')
@@ -218,6 +218,6 @@ if __name__ == "__main__":
         plt.xlabel('number of epochs')
         plt.ylabel('accuracy')
         plt.legend()
-        plt.savefig('resources/' + filename)
+        #plt.savefig('resources/' + filename)
         plt.show()
         plt.close()

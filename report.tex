@@ -104,9 +104,9 @@
    column) represents the weight from the $i^{th}$ input to the $j^{th}$ output.
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
-   The biases are represented by a 10 by 1 vector, one entry for each output. We use the tile function on 
+   The biases are represented by a 10 by 1 vector, one entry for each output. We use the tile function on
    b to produce a matrix that is 10x60000 so that we can add it the dot product of $W^T $ and x. This dot product
-  repesents $\sum_j ( w_{ji} ) x_j$ for each element, which together with $b_i$ form $o_i$, the output to be entered into the 
+  repesents $\sum_j ( w_{ji} ) x_j$ for each element, which together with $b_i$ form $o_i$, the output to be entered into the
  softmax function.
 
    Throughout the code, $y\_$ is a matrix representing the correct results for each image; each column is a
@@ -165,57 +165,51 @@
 
    \subsection{Vectorized Gradient Code}
    The following code computes the gradient with respect to the wieghts and biases
-   (representing all input training images in a matrix $X$, 784 by the number of samples, in this case 60 000) gives
+   (representing all input training images in a matrix $X$, 784 by the number of samples, in this case 60000):
       \begin{lstlisting}[language=Python]
          def grad(y_, y, x):
-	'''Compute the gradient wrt weights and biases'''
-    	#y and y_ have dimension (10x60000)
-    	#x has dimension (784x60 000)
-    
-    	diff = (y - y_) #y is output of softmax
-        	# diff is p_j - y_j
-    
-    	grad_W = np.dot( x, diff.T )
-    	grad_b = np.sum( diff, 1)  #could try with np.mean()
-    	grad_b = np.reshape(10,1)
-    
-    return  grad_W, grad_b
+      	   '''Compute the gradient wrt weights and biases'''
+          	#y and y_ have dimension (10x60000)
+          	#x has dimension (784x60000)
+
+          	diff = (y - y_) #y is output of softmax
+              	# diff is p_j - y_j
+
+          	grad_W = np.dot( x, diff.T )
+          	grad_b = np.sum( diff, 1)
+          	grad_b = np.reshape(10,1)
+
+          return  grad_W, grad_b
       \end{lstlisting}
 
-   The above code works  by creating a matrix  $\frac{ \partial C}{ \partial \textbf{W} }$ which is of dimension 784x10 
-  (for the 7840 weights), and where each element contains $\frac{ \partial C}{ \partial w_{ij} }$ for some i,j.
-  It does this by implementing $\sum_s ( p_j - y_j ) x_i$ for each matrix element, where i increases as you go down
-  a column (from 1 to 784) and j increases as you go accross a row (from 1 to 10). Each element itself contains 60000
-  terms added together to aggregate the information from all samples.
+   The above code works by creating a matrix $\nabla C $ which is of dimension 784x10
+   (same as the weight matrix), and where every element contains $\frac{ \partial C}{ \partial w_{ij} }$ for the corresponding $w_{ij}$.
+   It does this by implementing $\sum_s ( p_j - y_j ) x_i$ for each matrix element, where $i$ increases as you go down
+   a column (from 1 to 784) and $j$ increases as you go accross a row (from 1 to 10). Each element itself contains 60000
+   terms added together to aggregate the information from all samples.
 
    \section{Training}
    The neural network was trained on the full training set of $60000$ images without momentum.
-   A learning rate of $1 \cdot 10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $92.6\%$
-   and a testing accuracy of $92.2\%$.
    The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
+   A learning rate of $10^{-4}$ was used for $1000$ iterations, giving a training accuracy of $92.6\%$,
+   validation accuracy of XXX, and a testing accuracy of $92.2\%$.
+   To determine the optimal learning rate, the function \texttt{optimize\_rate()} tested several
+   learning rates, outputting the validation accuracy for each. Learning curves for each weight
+   are saved as images in the \texttt{resources} directory.
 
-   The following figure shows a learning curve:
-  \begin{figure}[H] \centering
-      \includegraphics[width=4in]{resources/part4}
-      \caption{accuracy vs. number of iteration for learning rate of $10^-4$ \texttt{plot\_samples()}. }
-   \end{figure}
+   The following figure shows the learning curve for the final parameters used:
+     \begin{figure}[H] \centering
+         \includegraphics[width=4in]{resources/part4}
+         \caption{Learning curve with a learning rate of $10^{-4}$. }
+      \end{figure}
 
-  The following figure shows the weights:
-  \begin{figure}[H] \centering
-      \includegraphics[width=4in]{resources/weights}
-      \caption{weight diagrams }
-   \end{figure}
+  The following figure, generated using \texttt{image\_W()} shows the weights input to each
+  output neuron (before the softmax layer), corresponding to the digits $1...10$:
+     \begin{figure}[H] \centering
+         \includegraphics[width=4in]{resources/weights}
+         \caption{Visualization of the weights }
+      \end{figure}
 
-
-  \subsection {Implementation Details:} 
-  For this section, we initialized our weights randomely using the 
- \begin{lstlisting}[language=Python]
-  	rd.rand(784, 10) 
-\end{lstlisting}
- function.
-  This is so that gradient descent can be run starting from a point where the neural network's guess is equivalent to chance.
-  The learning rate we used was $10^{-4}$. This was used because it produced the greatest accuracy on our validation ($91.5\%$) when compared with
-  $10^{-3}$,$5 \cdot 10^{-5}$,$10^{-5}$, and $10^{-6}$. 
 
 
 
@@ -257,7 +251,9 @@
    gradient with respect to each weight independenly.
    We can also ignore the biases; including them could be accomodated by adding an extra
    neuron to every layer (except the last) with a constant value of $1$. This would be
-   equivalent to increasing $K$ by $1$.
+   equivalent to increasing $K$ by $1$. As a final note, any functions (such as softmax) applied
+   to the output are ignored; these would have no asymptotic effect on $N$ and would increase
+   linearly with $K$.
 
    Denote each layer by the numbers $1,2... N$ (we can refer to the input layer as layer $0$).
    The efficiency of computing the gradient with respect to a weight to/from a particular layer
@@ -281,17 +277,17 @@
    Since there are $K$ neurons in each layer, each sum goes up to $K$.
 
    With $K$ neurons in each layer, there are $K^2$ weights between layers; thus the efficiency of
-   finding $ \frac{ \partial C}{ \partial w^{N} } $ for a specific weight is $O(1)$, but for
-   all the weights is $O(K^2)$.
+   finding $ \frac{ \partial C}{ \partial w^{N} } $ for a specific weight is $O(1)$ with respect
+   to $N$ and $K$, but for all the weights is $O(K^2)$.
    For a specific weight into layer $N-1$, the efficiency would be $O(K)$; scaling this to
    all the weights is $O(K^3)$, since the results for other weights are not cached.
-   Continuing this trend backward, the efficiency of finding the derivative of all the weights
-   into the second hidden layer is $O(K^{N})$ JUSTIFY IN MORE DETAIL.
+   Continuing this trend backward (each sum adds a factor of $K$), the efficiency of finding the derivative of all the weights
+   into the second hidden layer is $O(K^{N})$.
    If we make the simplifying assumption that there are $K$ input neurons, then the efficiency
    of finding all the derivatives for the weights in the first layer is $O(K^{N+1})$.
    Taking only the highest order, gives an overall efficiency of $O(K^{N})$.
 
-   The exponential dependence on $N$ also follows intuitively - as adding $N$ layers
+   The exponential dependence on $N$ also follows intuitively - as adding and extra layer
    exponentially increases the number of paths from the cost to the weight, and to find
    the derivative, each of these paths must be followed.
 
@@ -311,8 +307,54 @@
    Thus the complexity of vectorized backpropogation with caching is $O(N K^3)$ for a
    network with $N$ layers (excluding the input layer) each of $K$ neurons.
 
-   SUMMARY
+   For large neural networks, particularly those with several hidden layers, fully vectorized
+   and cached backpropogation reduces the asympotic runtime from to exponential in $N$ to being
+   linear in $N$, a huge speedup.
 
 
+   \section{Classifying Faces}
+   The data for this section was downloaded using the file \texttt{get\_data.py}. Carrying over
+   a blacklist for bad images from Project 1, and adding in a check to ensure the hashes were
+   correct, the images were downloaded, converted to grayscale, and cropped according to the given
+   bounding box. The resulting image was rescaled to $32$ by $32$ pixels.
+   While over 90 images were downloaded for Lorraine Bracco, Angie Harmon, Alec Baldwin,
+   Bill Hader, and Steve Carell, only 57 images were downloaded for Peri Gilpin.
+   Therefore, 70 images were used in the training set for each actor, while 37 were used for Gilpin,
+   leaving 20 images (per actor) for the validation and test sets. Rather than use an
+   additional 10 images for the test set (for 20 test images per actor), and possibly even doing
+   the same for the validation set, cross-validation (i.e. choosing the training/validation/testing
+   set differently) was used as described below.
+
+   The supplied code was modified to create a fully connected, single hidden layer (with RELU
+   activation function) neural network. The data was loaded and formatted using the \texttt{format\_data()}
+   function, which creates a dictionary similar to the format in which the MNIST data was loaded:
+   a key for the training, validation, and testing set for each actor, with the value holding a
+   \texttt{numpy} array holding the appropriate data.
+   The function \texttt{get\_set\_data()} then retrieves these arrays for use in the neural network,
+   and creates the arrays holding the correct classification for each image.
+
+   The network was trained using the entire training set, divided into random mini-batches at the
+   start of each epoch (6 mini-batches per epoch), using \texttt{Adam} as the optimizer.
+   The weights and biases were initialized randomly using torche's \texttt{randn()} function.
+   The following figure shows the learning curve for the training and validation sets for the training
+   with the final parameters: learning rate of XXX, 25 hidden neurons, and 5 epochs each with 6 mini-batches
+   of 1000 iterations.
+      \begin{figure}[h] \centering
+         \includegraphics[width=4in]{resources/part8}
+         \caption{Learning Curve}
+       \end{figure}
+
+   Because of the large number of hyperparameters (learning rate, number of epochs, size of the
+   training/validation sets, number of neurons in the hidden layer, etc.), it was difficult to
+   optimize the network.
+   Rather than iteratively fully exploring a subspace of possible hyperparameters (which would grow
+   extremely quickly even for few choices for each parameter), the function \texttt{optimize\_params()}
+   was used to sample several options, and was run several times with different divisions into
+   training/validation/testing sets (changed by setting the seed in \texttt{format\_data()} to 0, 1, and 2).
+   The validation results for each set of parameters were then approximately averaged, and that result
+   led to a choice of trial 2 (as defined in the \texttt{optimize\_params()} function), i.e. the parameters
+   given above.
+
+   These parameters
 
 \end{document}

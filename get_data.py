@@ -93,7 +93,7 @@ for a in act:
                 #unsupress exceptions, which timeout() does)
                 #testfile.retrieve(line.split()[4], "uncropped/"+filename)
                 #timeout is used to stop downloading images which take too long to download
-            timeout(testfile.retrieve, (line.split()[4], save_to+filename), {}, 100)
+            timeout(testfile.retrieve, (line.split()[4], save_to+filename), {}, 60)
             
             if os.path.isfile(save_to+filename):
                 sha256 = hashlib.sha256() #reset the hash
