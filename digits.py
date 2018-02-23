@@ -246,20 +246,28 @@ def backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, rate, max_iter, m
     w2_prog = []
     
     nu_W = np.zeros( np.shape(W) )
-    nu_b = np.zeros( np.shape(b) )
+    #nu_b = np.zeros( np.shape(b) )
+    nu_w1 = 0
+    nu_w2 = 0
     
     iter = 0
     while iter <= max_iter:
-        y = no_hidden_layers(x_train, W, b)
+        h = np.zeros( np.shape(W) )
+        h[w1_pos] = 0.001
+        fd = finite_diff(y_test, x_test, W, h, b)
+        nu_w1 = mom*nu_w1 + rate*fd
+        W[w1_pos] -= nu_w1
+        print(nu_w1)
         
-        grad_W, grad_b = grad(y_train, y, x_train)
-        nu_W = mom*nu_W + rate*grad_W
-        nu_b = mom*nu_b + rate*grad_b
-        W -= nu_W
-        b -= nu_b
+        h = np.zeros( np.shape(W) )
+        h[w2_pos] = 0.001
+        fd = finite_diff(y_test, x_test, W, h, b)
+        nu_w2 = mom*nu_w2 + rate*fd
+        W[w2_pos] -= nu_w2
         
         w1_prog += [ W[w1_pos] ]
         w2_prog += [ W[w2_pos] ]
+        #print(w2_prog)
 
         iter += 1
 
@@ -267,7 +275,6 @@ def backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, rate, max_iter, m
 
 
 if __name__ == "__main__":  
-
 
     M = loadmat("mnist_all.mat") #Load the MNIST digit data
 
@@ -329,9 +336,10 @@ if __name__ == "__main__":
     #Part 3 - Finite Diff
     a, b = 45, 7 #direction of finite diff (element of W)
     h = np.zeros( np.shape(W) )
-    h[a,b] = 0.001
-    fd = finite_diff(y_tes, x, W, h, b)
-    g, _ = grad(y_test, y, x)
+    h[a,b] = 0.0001
+    fd = finite_diff(y_test, x_test, W, h, b)
+    y = no_hidden_layers(x_test, W, b)
+    g, _ = grad(y_test, y, x_test)
     print( 'Difference: ' + str(g[a,b] - fd) )
     
     
@@ -346,7 +354,7 @@ if __name__ == "__main__":
     val_acc = optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates) #use this to determine best mom coeff
     
     learning_rate = 1e-4 #parameters for gradient descent
-    momentum_rate = 0.8 #optimal value based on tests
+    momentum_rate = 0.8 #optimal value based on validation accuracy
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
@@ -386,11 +394,11 @@ if __name__ == "__main__":
     W = W_part5.copy()
     W[w1_pos] += 7
     W[w2_pos] += 7
-    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 10000, mom=0)
+    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-2, 80, mom=0)
     W = W_part5.copy()
     W[w1_pos] += 7
     W[w2_pos] += 7
-    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 2000, mom=0.8)
+    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-2, 80, mom=0.8)
     CS = plt.contour(hor, ver, vals)
     plt.plot(w1_prog, w2_prog, label='No Momentum')
     plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
@@ -399,23 +407,24 @@ if __name__ == "__main__":
     plt.ylabel('w2')
     plt.legend()
     plt.savefig('resources/part6bc.jpg')
-    plt.show()
+    #plt.show()
     plt.close()
     
     
     #Part 6e
+    '''
     W = W_part5.copy()
     w1_pos = (1,1)
     w2_pos = (1,2)
-    w1 = W[w1_pos]
-    w2 = W[w2_pos]
+    #w1 = W[w1_pos]
+    #w2 = W[w2_pos]
     W[w1_pos] += 7
     W[w2_pos] += 7
-    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 2000, mom=0)
+    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-2, 20, mom=0)
     W = W_part5.copy()
     W[w1_pos] += 7
     W[w2_pos] += 7
-    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 1000, mom=0.8)
+    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 20, mom=0.8)
     CS = plt.contour(hor, ver, vals)
     plt.plot(w1_prog, w2_prog, label='No Momentum')
     plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
@@ -425,7 +434,26 @@ if __name__ == "__main__":
     plt.legend()
     plt.savefig('resources/part6e.jpg')
     plt.show()
-    
+    plt.close()
+    '''
+
+    w1_pos = (10,1)
+    w2_pos = (11,2)
+    w1 = W[w1_pos]
+    w2 = W[w2_pos]
+    hor, ver, vals = get_costs_mesh(x_train, y_train, W.copy(), b, w1_pos, w2_pos, 10)
+    plt.figure()
+    CS = plt.contour(hor, ver, vals)
+    plt.title('Contour Plot')
+    plt.xlabel('w1')
+    plt.ylabel('w2')
+    plt.legend()
+    plt.savefig('resources/part6e.jpg')
+    #plt.show()
+    plt.close()
+
+
+
 
 
 ## Code not used from Profs
