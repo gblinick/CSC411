@@ -211,6 +211,7 @@ if __name__ == "__main__":
 
     dim_x = 9216     #number of activations outputted by the convolutional layers
 
+
     #Set up data
     acts_m = ['hader', 'carell', 'baldwin']
     acts_f = ['harmon', 'bracco', 'gilpin']
@@ -246,11 +247,12 @@ if __name__ == "__main__":
     #Creat Torch NN
     dtype_float = torch.FloatTensor
     dtype_long = torch.LongTensor
-    
-    dim_h = 200      #started at 20
-    rate = 1e-4
+ 
+    dim_h = 100      #started at 20
+    rate = 1e-3
     no_epochs = 5
-    iter = 1000      #iterations per mini_batch
+    iter = 100      #iterations per mini_batch
+
     params = (dim_h, rate, no_epochs, iter)
     train_acc, val_acc, test_res, nn = train(x_train, y_train, x_val, y_val, x_test, y_test, dim_x, params)
     print('Final Train Acc: ' + str(train_acc[len(train_acc) -1]) )

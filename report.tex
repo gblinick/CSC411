@@ -85,8 +85,11 @@
    and for part 10 in \texttt{deepfaces.py}.
    Running the code will save all generated images in the \texttt{resources} folder,
    where they are used by \LaTeX. Note that some of the sections require the code for
-   other sections to be run first.
-   To reproduce the report, simply run it through \LaTeX.
+   other sections (in the same file) to be run first. Additionally, the files for parts 8 and 10
+   contain similar functions; it may be useful to restart the python shell when switching files
+   to ensure reproducibility.
+   To reproduce the report, simply run it through \LaTeX. This will pull in the most recently
+   generated figures from the \texttt{resources} folder.
 
 
    \section{The Network}
@@ -181,7 +184,6 @@
           	#x has dimension (784x60000)
 
           	diff = (y - y_) #y is output of softmax
-              	# diff is p_j - y_j
 
           	grad_W = np.dot( x, diff.T )
           	grad_b = np.sum( diff, 1)
@@ -301,7 +303,6 @@
            plt.ylabel('accuracy')
            plt.legend()
            plt.savefig('resources/' + filename)
-           #plt.show()
            plt.close()
 
        return W, b
@@ -488,14 +489,14 @@
 
 
    \section{Visualizing Weights}
-      \begin{figure}[h!] \centering
-         \includegraphics[width=4in]{resources/part9}
-         \caption{Visualization of the weights into the hidden layer (the color is artificial).}
-         \label{part9}
-       \end{figure}
-
    Figure \ref{part9} shows all the weights from the input layer (1024 inputs) to the first (only)
    hidden layer in Part 8 (25 hidden units).
+
+   \begin{figure}[h!] \centering
+      \includegraphics[width=4in]{resources/part9}
+      \caption{Visualization of the weights into the hidden layer (the color is artificial).}
+      \label{part9}
+    \end{figure}
 
    To identify the faces shown in these images, they were passed through the neural network, to see the predictions.
    Based on this (and ignoring the images in rows 2 and 3), Hader is most present in images 2,3, and 20,
@@ -507,7 +508,46 @@
    \section{AlexNet}
    To download the data, \texttt{get\_data.py} was run with slightly different parameters, to retain the images
    in color, and resize the images to 227 by 227. The number of images downloaded varied slightly from the numbers
-   in Part 8.
-   
+   in Part 8. These images are stored in the \texttt{resources} folder.
+   The validation and test sets were 10 images per actor, to maximize the number of images in the training set.
+   As in Part 8, fewer training images were used for Peri Gilpin than for the rest of the actors.
+
+   Starting from the supplied AlexNet code, a new function \texttt{conv\_output()} was defined,
+   to return the activations from the final convolutional layer. Using \texttt{format\_data()} to generate
+   a dictionary of filenames with training, verification, and testing data for each of the six actors (same
+   actors as in Part 8). This was then passed through \texttt{get\_activations()}, which ran each image
+   through AlexNet, retrieved the 9216 activations after the final convolutional network, and returned a list
+   containing these activations for each image. Once all the activations are retrieved, appropriate
+   arrays are generated with the correct classification for each set of activations.
+
+   In the function \texttt{train()}, a torch neural network is defined, and trained using mini-batches.
+   A first attempt, using a network with one hidden layer of 100 neurons, a learning rate of 0.001, and
+   5 epochs with 6 mini-batches of 100 iterations each, gave perfect training accuracy, and $81.7\%$ and
+   $80\%$ accuracy for the verification and training sets respectively.
+   Due to the significant runtime, we did not preform cross-validation on the division of data into
+   training, verification, and testing data.
+
+   Due to the lengthy runtime and large space for the hyperparameters, a similar approach
+   to that in Part 8 was adopted to optimize the hyperparameters: varying several of the parameters
+   independently, and continuing to optimize based on the results.
+   These variations included extending the network to two hidden layers, but that change did not
+   improve results (at least not with the other settings for the hyperparameters):
+   trying both 50 and 100 neurons per hidden layer (with learing rate 0.001, 5 epochs as above)
+   gave no better validation results ($78.3\%$ and $81.7\%$ respectively), though the validation
+   results had saturated. Even increasing to three hidden layers did not improve this result.
+
+   The final parameters that were used were XXXX, giving a training accuracy of XXX, a validation
+   accuracy of XXX, and a testing accuracy of XXX.
+
+   The following figure shows the learning curves with these settings.
+
+      \begin{figure}[h!] \centering
+         \includegraphics[width=4in]{resources/part9}
+         \caption{Learning Curves for Part 10.}
+         \label{part10}
+       \end{figure}
+
+
+
 
 \end{document}
