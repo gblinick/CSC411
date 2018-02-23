@@ -75,7 +75,7 @@
    \end{figure}
    The data was downloaded from the assignment webpage, and imported into Python using the
    provided code. The data was already divided into training and testing sets, but the testing
-   set was divided into two sets of 5000 samples, for a separate validation and test set.
+   set was divided into two sets of 5000 samples each, for a separate validation and test set.
    The training set contains 60000 samples, divided almost equally between the ten digits.
 
    \subsection{Results \& Report Reproducibility}
@@ -88,7 +88,7 @@
    other sections (in the same file) to be run first. Additionally, the files for parts 8 and 10
    contain similar functions; it may be useful to restart the python shell when switching files
    to ensure reproducibility.
-   To reproduce the report, simply run it through \LaTeX. This will pull in the most recently
+   To reproduce the report, simply run it through \LaTeX. This will pull the most recently
    generated figures from the \texttt{resources} folder.
 
 
@@ -101,7 +101,7 @@
       def no_hidden_layers(x, W, b):
    	    '''Compute the network'''
       	 #the first column of W contains the weights for output 1
-       	 # W is (784x10), x is (784x60 000) and b is (10x60 000)
+       	 # W is (784x10), x is (784x60000) and b is (10x60000)
        	 # So L1 is (10x60000)
       	 L1 = np.dot(W.T, x) + tile(b, (1, np.shape(x)[1] ) )
      	 return softmax(L1)
@@ -117,7 +117,7 @@
    When computing the network on a given sample, the transpose of $W$ is multiplied
    by the column vector (or matrix when computing on multiple samples) representing the input.
    The biases are represented by a 10 by 1 vector, one entry for each output. We use the \texttt{tile()} function
-   to duplicate the biasses $b$ up to appropirate dimensions (10 by 60000) to be added to the result of $W^T X$.
+   to duplicate the biasses $b$ up to appropirate dimensions (10 by 60000) to be added to the result of $W^T x$.
 
    Throughout the code, $y\_$ is a matrix representing the correct results for each image; each column is a
    vector of zeros with a 1 in the place representing the correct digit.
@@ -126,7 +126,7 @@
    each column is a vector representing the probabilities for each digit for a particular sample.
 
    \section{Gradient}
-   The cost function is taken to be $- \sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
+   The cost function (negative log probability) is taken to be $- \sum_{k} y_k ln(p_k)$ for one sample, where $y_k$ is
    1 for the correct class and 0 otherwise, and $p_k$ is the prediction probability for class k.
    Writing this in vector notation (replacing the sum with a vector dot product) and
    summing over all the samples gives:
@@ -209,7 +209,7 @@
    validation accuracy of $92.3\%$, and a testing accuracy of $91.9\%$.
    The weights and biases were initialized using a uniform distribution to values between $0$ and $1$.
    To determine the optimal learning rate, the function \texttt{optimize\_learning()} tested several
-   learning rates, outputting the validation accuracy for each. Learning curves for each weight
+   learning rates, outputting the validation accuracy for each. Learning curves for each learning rate
    are saved as images in the \texttt{resources} directory (corresponding to the list of
    rates in \texttt{digits.py}); and a rate of $10^{-4}$ gave the best
    results on the validation set.
@@ -218,7 +218,7 @@
    come when gradient descent left a local minimum:
      \begin{figure}[H] \centering
          \includegraphics[width=4in]{resources/part4_main}
-         \caption{Learning curve with a learning rate of $10^{-4}$. }
+         \caption{Learning curves with a learning rate of $10^{-4}$. }
       \end{figure}
    A surprisingly small number of iterations was required (espcially in comparison with Project 1), with almost no
    improvement past 1000 iterations. The large size of the training set likely contributed to this.
@@ -245,7 +245,7 @@
    The following figure shows the learning curves:
       \begin{figure}[H] \centering
          \includegraphics[width=4in]{resources/part5}
-         \caption{learning curves for neural network  with momentum of 0.8}
+         \caption{Learning curves for neural network  with momentum of 0.8}
       \end{figure}
 
   To determine the best value of momentum, the function \texttt{optimize\_momentum()} was used.
@@ -541,7 +541,8 @@
    large computational cost), giving a perfect training accuracy, a validation
    accuracy of $81.7\%$, and a testing accuracy of $80\%$.
 
-   The following figure shows the learning curves with these settings.
+   The following figure shows the learning curves with these settings. Note the convergence of
+   the validation and test accuracy, showing that further iterations does not improve results.
 
       \begin{figure}[h!] \centering
          \includegraphics[width=4in]{resources/part10}

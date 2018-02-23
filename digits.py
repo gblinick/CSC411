@@ -148,7 +148,7 @@ def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filena
     #Part 4.1.1: Plot the learning curves. 
     if filename:
         plt.scatter(iter_acc, train_acc, label='Training Data')
-        plt.scatter(iter_acc, test_acc, label='Test Data')
+        plt.scatter(iter_acc, test_acc, label='Validation Data')
         plt.title('Learing Curve')
         plt.xlabel('number of iterations')
         plt.ylabel('accuracy')
