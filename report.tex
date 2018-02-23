@@ -521,7 +521,7 @@
    arrays are generated with the correct classification for each set of activations.
 
    In the function \texttt{train()}, a torch neural network is defined, and trained using mini-batches.
-   A first attempt, using a fully connected network with one hidden layer of 100 neurons, a learning rate of 0.001, and
+   Using a fully connected network with one hidden layer of 100 neurons, a learning rate of 0.001, and
    5 epochs with 6 mini-batches of 100 iterations each, gave perfect training accuracy, and $81.7\%$ and
    $80\%$ accuracy for the verification and training sets respectively.
    Due to the significant runtime, we did not preform cross-validation on the division of data into
@@ -536,13 +536,15 @@
    gave no better validation results ($78.3\%$ and $81.7\%$ respectively), though the validation
    results had saturated. Even increasing to three hidden layers did not improve this result.
 
-   The final parameters that were used were XXXX, giving a training accuracy of XXX, a validation
-   accuracy of XXX, and a testing accuracy of XXX.
+   The final parameters that were used that gave reasonable accuracy (though not significantly better
+   than Part 8) were those given above (doubling the number of epochs slightly increased accuracy, but at
+   large computational cost), giving a perfect training accuracy, a validation
+   accuracy of $81.7\%$, and a testing accuracy of $80\%$.
 
    The following figure shows the learning curves with these settings.
 
       \begin{figure}[h!] \centering
-         \includegraphics[width=4in]{resources/part9}
+         \includegraphics[width=4in]{resources/part10}
          \caption{Learning Curves for Part 10.}
          \label{part10}
        \end{figure}

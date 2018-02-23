@@ -17,6 +17,7 @@ import torch.nn as nn
 # a list of class names
 from caffe_classes import class_names
 
+
 # We modify the torchvision implementation so that the features
 # after the final pooling layer is easily accessible by calling
 #       net.features(...)
@@ -209,7 +210,7 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, dim_x, params):
 
 if __name__ == "__main__": 
 
-    dim_x = 9216     #number of activations outputted by the convolutional layers
+    dim_x = 9216     #number of activations outputted from the final convolutional layer
 
 
     #Set up data
@@ -248,20 +249,19 @@ if __name__ == "__main__":
     dtype_float = torch.FloatTensor
     dtype_long = torch.LongTensor
  
-    dim_h = 100      #started at 20
+    dim_h = 100
     rate = 1e-3
     no_epochs = 5
     iter = 100      #iterations per mini_batch
-
     params = (dim_h, rate, no_epochs, iter)
     train_acc, val_acc, test_res, nn = train(x_train, y_train, x_val, y_val, x_test, y_test, dim_x, params)
     print('Final Train Acc: ' + str(train_acc[len(train_acc) -1]) )
     print('Final Val Acc: ' + str(val_acc[len(val_acc)-1]) )
     print('Test Res: ' + str(test_res) )
-    print("dim_h:", dim_h, "rate:", rate, "no_ephocs:", no_epochs, "iter:", iter)
+    print("dim_h: ", dim_h, "rate: ", rate, "no_ephocs: ", no_epochs, "iter: ", iter)
     
     
-    if False:
+    if True:
         filename = 'part10.jpg'
         epochs = np.linspace(1, no_epochs*6, no_epochs*6)
         plt.scatter(epochs, train_acc, label='Training Data')
