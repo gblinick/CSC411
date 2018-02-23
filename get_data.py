@@ -17,18 +17,19 @@ import hashlib
 
 os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
-f = 'resources/facescrub_actors.txt'
-save_to = 'resources/croppedMale/'
-gender = 'male'
+
 
 f = 'resources/facescrub_actresses.txt'
-save_to = 'resources/croppedFemale/' #directory for saving images
+save_to = 'resources/croppedFemale_p10/' #directory for saving images
 gender = 'female' #for saving downloaded and skipped records
 
+f = 'resources/facescrub_actors.txt'
+save_to = 'resources/croppedMale_p10/'
+gender = 'male'
 
 act = list(set([a.split("\t")[0] for a in open(f).readlines()])) #"subset_actors.txt"
-
-
+#act = ['Lorraine Bracco', 'Angie Harmon', 'Peri Gilpin']
+act = ['Alec Baldwin', 'Bill Hader', 'Steve Carell']
 
 def timeout(func, args=(), kwargs={}, timeout_duration=1, default=None):
     '''From:
@@ -69,7 +70,7 @@ blacklist = blacklist_male + blacklist_female
 
 print(act) #print actors for whom data will be downloaded
 BUF_SIZE = 65536
-sz = (32,32) #size to resize images to
+sz = (227,227) #size to resize images to; (32,32) for earlier parts
 
 skipped = '' #will contain all the URLs of images not downloaded
 no_skipped = 0
@@ -107,15 +108,17 @@ for a in act:
                     downloaded += filename + ' ' + line.split()[4] + '\n'
                     no_downloaded += 1
                     
-                    img = imread(save_to+filename, flatten = True)
+                    img = imread(save_to+filename, flatten = False) #flatten = True for grayscale
                     
                     x1,y1,x2,y2 = [int(k) for k in line.split()[5].split(',')] #bounding box
-                    img = img[y1:y2, x1:x2]
+
+                    img = img[y1:y2, x1:x2] 
                     img = imresize(img, sz)
                     
-                    if False:
-                        plt.imshow(img, cmap = cm.gray)
+                    if False and i<1:
+                        plt.imshow(img) #, cmap = cm.gray
                         plt.show()
+                        print( np.shape(img) )
                     
                     imsave(save_to+filename, img)
                     i += 1

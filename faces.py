@@ -12,7 +12,7 @@ from scipy.ndimage import filters
 from scipy.io import loadmat
   
 
-os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+#os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 
 def format_data(acts, trsizes, folders, rd_seed=0):
