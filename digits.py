@@ -412,31 +412,6 @@ if __name__ == "__main__":
     
     
     #Part 6e
-    '''
-    W = W_part5.copy()
-    w1_pos = (1,1)
-    w2_pos = (1,2)
-    #w1 = W[w1_pos]
-    #w2 = W[w2_pos]
-    W[w1_pos] += 7
-    W[w2_pos] += 7
-    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-2, 20, mom=0)
-    W = W_part5.copy()
-    W[w1_pos] += 7
-    W[w2_pos] += 7
-    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 20, mom=0.8)
-    CS = plt.contour(hor, ver, vals)
-    plt.plot(w1_prog, w2_prog, label='No Momentum')
-    plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
-    plt.title('Contour Plot with Weight Trajectories')
-    plt.xlabel('w1')
-    plt.ylabel('w2')
-    plt.legend()
-    plt.savefig('resources/part6e.jpg')
-    plt.show()
-    plt.close()
-    '''
-
     w1_pos = (10,1)
     w2_pos = (11,2)
     w1 = W[w1_pos]
@@ -501,3 +476,30 @@ if __name__ == "__main__":
         #fig.colorbar(heatmap, shrink = 0.5, aspect=5)
         #show()
         ################################################################################
+
+
+    #Part 6e
+    '''
+    W = W_part5.copy()
+    w1_pos = (1,1)
+    w2_pos = (1,2)
+    #w1 = W[w1_pos]
+    #w2 = W[w2_pos]
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-2, 20, mom=0)
+    W = W_part5.copy()
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 20, mom=0.8)
+    CS = plt.contour(hor, ver, vals)
+    plt.plot(w1_prog, w2_prog, label='No Momentum')
+    plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
+    plt.title('Contour Plot with Weight Trajectories')
+    plt.xlabel('w1')
+    plt.ylabel('w2')
+    plt.legend()
+    plt.savefig('resources/part6e.jpg')
+    plt.show()
+    plt.close()
+    '''
