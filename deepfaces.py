@@ -8,10 +8,11 @@ import numpy as np
 import  matplotlib.pyplot as plt
 from scipy.misc import imread, imresize
 from numpy import float32
+import numpy.random as rd
 
 import torch.nn as nn
 
-os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+#os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 # a list of class names
 from caffe_classes import class_names
@@ -184,18 +185,18 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, dim_x, params):
                 loss.backward()    # Compute the gradient
                 optimizer.step()   # Use the gradient information to make a step
             
-        #Get results on train set
-        x = Variable(torch.from_numpy(train_x), requires_grad=False).type(dtype_float)
-        y_pred = model(x).data.numpy()
-        train_res = np.mean( np.argmax(y_pred, 1) == np.argmax(train_y, 1) )
-        
-        #Get results on val set
-        x = Variable(torch.from_numpy(val_x), requires_grad=False).type(dtype_float)
-        y_pred = model(x).data.numpy()
-        val_res = np.mean( np.argmax(y_pred, 1) == np.argmax(val_y, 1) )
+            #Get results on train set
+            x = Variable(torch.from_numpy(train_x), requires_grad=False).type(dtype_float)
+            y_pred = model(x).data.numpy()
+            train_res = np.mean( np.argmax(y_pred, 1) == np.argmax(train_y, 1) )
             
-        train_acc += [train_res]
-        val_acc += [val_res]
+            #Get results on val set
+            x = Variable(torch.from_numpy(val_x), requires_grad=False).type(dtype_float)
+            y_pred = model(x).data.numpy()
+            val_res = np.mean( np.argmax(y_pred, 1) == np.argmax(val_y, 1) )
+                
+            train_acc += [train_res]
+            val_acc += [val_res]
 
     #Get results on test set
     x = Variable(torch.from_numpy(test_x), requires_grad=False).type(dtype_float)
@@ -208,7 +209,7 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, dim_x, params):
 
 if __name__ == "__main__": 
 
-    dim_x = 9216
+    dim_x = 9216     #number of activations outputted by the convolutional layers
 
     #Set up data
     acts_m = ['hader', 'carell', 'baldwin']
@@ -246,13 +247,27 @@ if __name__ == "__main__":
     dtype_float = torch.FloatTensor
     dtype_long = torch.LongTensor
     
-    dim_h = 150      #started at 20
-    rate = 1e-3
+    dim_h = 200      #started at 20
+    rate = 1e-4
     no_epochs = 5
-    iter = 100      #iterations per mini_batch
+    iter = 1000      #iterations per mini_batch
     params = (dim_h, rate, no_epochs, iter)
     train_acc, val_acc, test_res, nn = train(x_train, y_train, x_val, y_val, x_test, y_test, dim_x, params)
     print('Final Train Acc: ' + str(train_acc[len(train_acc) -1]) )
     print('Final Val Acc: ' + str(val_acc[len(val_acc)-1]) )
     print('Test Res: ' + str(test_res) )
+    print("dim_h:", dim_h, "rate:", rate, "no_ephocs:", no_epochs, "iter:", iter)
     
+    
+    if False:
+        filename = 'part10.jpg'
+        epochs = np.linspace(1, no_epochs*6, no_epochs*6)
+        plt.scatter(epochs, train_acc, label='Training Data')
+        plt.scatter(epochs, val_acc, label='Validation Data')
+        plt.title('Learning Curve')
+        plt.xlabel('number of mini-batches')
+        plt.ylabel('accuracy')
+        plt.legend()
+        plt.savefig('resources/' + filename)
+        #plt.show()
+        plt.close()
