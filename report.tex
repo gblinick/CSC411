@@ -321,7 +321,7 @@
    (chosen randomly) were used (recall that $W$ is
    a $784$ by $10$ matrix). After training the network as described in the previous section,
    these weights had the values $w_{375,2} = 1.55$ and $w_{475,4} = 1.3$. These values correspond the the
-   $0$'s in the plots below.
+   $0$'s in the plots below (note that only the training set cost was used in this section).
 
    The following plot shows the variation of the cost function (negative log loss) around the
    values for $w_{375,2}$ and $w_{475,4}$ chosen above.
@@ -521,7 +521,7 @@
    arrays are generated with the correct classification for each set of activations.
 
    In the function \texttt{train()}, a torch neural network is defined, and trained using mini-batches.
-   A first attempt, using a network with one hidden layer of 100 neurons, a learning rate of 0.001, and
+   A first attempt, using a fully connected network with one hidden layer of 100 neurons, a learning rate of 0.001, and
    5 epochs with 6 mini-batches of 100 iterations each, gave perfect training accuracy, and $81.7\%$ and
    $80\%$ accuracy for the verification and training sets respectively.
    Due to the significant runtime, we did not preform cross-validation on the division of data into
