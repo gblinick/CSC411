@@ -23,12 +23,12 @@ except:
 
 
 
-#os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
+os.chdir('/Users/arielkelman/Documents/Ariel/EngSci3-PhysicsOption/Winter2018/CSC411 - Machine Learning/Project2/CSC411/')
 
 
 
 def plot_samples(M, filename='resources/part1.jpg'): #Part 1
-    '''Given a dictionary M formatted as ___
+    '''Given a dictionary M formatted as MNIST data,
     save an image to filename with 10 random images for each digit '''
     
     rd.seed(0)
@@ -160,7 +160,7 @@ def backprop(x_train, y_train, x_val, y_val, W, b, rate, max_iter, mom=0, filena
     return W, b
 
 def optimize_learning(learning_rates, x_train, y_train, x_val, y_val, W, b, max_iter, mom=0):
-    # Part 4
+    # for Part 4, optimize learning rate
     val_acc = []
     k = 0
     for rate in learning_rates:
@@ -175,7 +175,7 @@ def optimize_learning(learning_rates, x_train, y_train, x_val, y_val, W, b, max_
     return val_acc
 
 def optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates):
-    # Part 5
+    # for Part 5
     val_acc = []
     k = 0
     for momentum in momentum_rates:
@@ -189,7 +189,7 @@ def optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_i
         val_acc += [ res.count(1)/len(res) ]
     return val_acc
 
-def check_results(y_, y):            #Part 4
+def check_results(y_, y):  
     '''return an array of 0/1's indicating the correctness of NN's output'''
     results = []
     for k in range( len(y[1,:]) ):
@@ -200,7 +200,7 @@ def check_results(y_, y):            #Part 4
     return results
 
 def image_W(W, filename):
-    # 
+     
     fig, ax = plt.subplots(1,10)
     
     for k in range( np.shape(W)[1] ):
@@ -218,26 +218,52 @@ def image_W(W, filename):
 
 
 
+def get_costs_mesh(x, y_, W, b, w1_pos, w2_pos, r):
+    
+    w1 = W[w1_pos]
+    w2 = W[w2_pos]
+    delta = 1
+    hor = np.arange(w1-r, w1+r, delta)
+    ver = np.arange(w2-r, w2+r, delta)
+    res = np.zeros( ( len(hor), len(ver) ) )
+    
+    for m in range( len(hor) ):
+        for n in range( len(ver) ):
+            W[w1_pos] = hor[m]
+            W[w2_pos] = ver[n]
+            y = no_hidden_layers(x, W, b)
+            res[m, n] = NLL(y_, y)
+    
+    hor, ver = np.meshgrid(hor, ver)
+    
+    return hor, ver, res
 
-def tanh_layer(y, W, b):   #Provided by profs
-    '''Return the output of a tanh layer for the input matrix y. y
-    is an NxM matrix where N is the number of inputs for a single case, and M
-    is the number of cases'''
-    return tanh(dot(W.T, y)+b)
 
-def forward(x, W0, b0, W1, b1): #Provided by profs
-    L0 = tanh_layer(x, W0, b0)
-    L1 = dot(W1.T, L0) + b1
-    output = softmax(L1)
-    return L0, L1, output
+def backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, rate, max_iter, mom=0):
+    # Part 6b and 6c
+    
+    w1_prog = []
+    w2_prog = []
+    
+    nu_W = np.zeros( np.shape(W) )
+    nu_b = np.zeros( np.shape(b) )
+    
+    iter = 0
+    while iter <= max_iter:
+        y = no_hidden_layers(x_train, W, b)
+        
+        grad_W, grad_b = grad(y_train, y, x_train)
+        nu_W = mom*nu_W + rate*grad_W
+        nu_b = mom*nu_b + rate*grad_b
+        W -= nu_W
+        b -= nu_b
+        
+        w1_prog += [ W[w1_pos] ]
+        w2_prog += [ W[w2_pos] ]
 
-def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):  #provided by profs
-    '''Incomplete function for computing the gradient of the cross-entropy
-    cost function w.r.t the parameters of a neural network'''
-    dCdL1 =  y - y_
-    dCdW1 =  dot(L0, dCdL1.T )
+        iter += 1
 
-
+    return w1_prog, w2_prog
 
 
 if __name__ == "__main__":  
@@ -249,17 +275,13 @@ if __name__ == "__main__":
         plt.imshow(M["train5"][150].reshape((28,28)), cmap=cm.gray)
         plt.show()
         plt.close()
-        
-    '''plot_samples(M, 'resources/part1.jpg')  #Part 1'''
     
-    #Parts 2 and 3 are implemented as functions above
-    
-    
+    plot_samples(M, 'resources/part1.jpg')  #Part 1    
 
 
     #Part 4
     
-    #Part4.1: Train the neural network you constructed using gradient descent 
+    #Part A: Train the neural network you constructed using gradient descent 
     # (without momentum). 
     
     #Setup data needed for training & testing 
@@ -275,30 +297,21 @@ if __name__ == "__main__":
 
 
     #find the best learning rate
-    #rates = [1e-3, 1e-4, 5e-5, 1e-5, 1e-6]
-    learning_rates = [1e-4, 1e-5]
+    rates = [1e-3, 1e-4, 5e-5, 1e-5, 1e-6]
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    #val_acc = optimize_learning(learning_rates, x_train, y_train, x_val, y_val, W, b, max_iter)
+    val_acc = optimize_learning(rates, x_train, y_train, x_val, y_val, W, b, max_iter) #use this to determine best learning rate
 
-    #find the best momentum rate
-    momentum_rates = [0.8, 0.85, 0.9]
-    learning_rate = 1e-4
-    max_iter = 1000
-    rd.seed(0)  
-    W = rd.rand(784, 10)
-    b = rd.rand(10, 1)
-    #val_acc = optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates)
 
-    #Part 4
-    learning_rate = 1e-4 #parameters for gradient descent
+    #Part 4 - implement with the parameters found abovs
+    learning_rate = 1e-4 
     max_iter = 1000
     rd.seed(0)  
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
-    W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, mom=0, filename='part4.jpg')
+    W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, mom=0, filename='part4_main.jpg')
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)
     print( 'Train Results (without momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
@@ -309,10 +322,29 @@ if __name__ == "__main__":
     res = check_results(y_test, y)
     print( 'Test Results (without momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
 
-    #Part 4.2: Display the weights going into each of the output units.
-    #image_W(W, filename='weights.jpg')
+    #Part B: Display the weights going into each of the output units.
+    image_W(W, filename='part4_weights.jpg')
+    
+    
+    #Part 3 - Finite Diff
+    a, b = 45, 7 #direction of finite diff (element of W)
+    h = np.zeros( np.shape(W) )
+    h[a,b] = 0.001
+    fd = finite_diff(y_tes, x, W, h, b)
+    g, _ = grad(y_test, y, x)
+    print( 'Difference: ' + str(g[a,b] - fd) )
+    
     
     #Part 5
+    #find the best momentum rate
+    momentum_rates = [0.8, 0.85, 0.9]
+    learning_rate = 1e-4
+    max_iter = 1000
+    rd.seed(0)  
+    W = rd.rand(784, 10)
+    b = rd.rand(10, 1)
+    val_acc = optimize_momentum(learning_rate, x_train, y_train, x_val, y_val, W, b, max_iter, momentum_rates) #use this to determine best mom coeff
+    
     learning_rate = 1e-4 #parameters for gradient descent
     momentum_rate = 0.8 #optimal value based on tests
     max_iter = 1000
@@ -320,9 +352,10 @@ if __name__ == "__main__":
     W = rd.rand(784, 10)
     b = rd.rand(10, 1)
     W, b = backprop(x_train, y_train, x_val, y_val, W, b, learning_rate, max_iter, mom=momentum_rate, filename='part5.jpg')
+    W_part5 = W.copy() #saving, as it is changed in part 6
     y = no_hidden_layers(x_train, W, b)
     res = check_results(y_train, y)
-    print( 'Train Results (wit momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
+    print( 'Train Results (with momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
     y = no_hidden_layers(x_val, W, b)
     res = check_results(y_val, y)
     print( 'Val Results (with momentum): ' + str(res.count(1)) + '/' + str(len(res)) )
@@ -332,10 +365,92 @@ if __name__ == "__main__":
     
     
     
+    # Part 6a
+    w1_pos = (375, 2)
+    w2_pos = (425, 4)
+    w1 = W[w1_pos]
+    w2 = W[w2_pos]
+    hor, ver, vals = get_costs_mesh(x_train, y_train, W.copy(), b, w1_pos, w2_pos, 10)
+    plt.figure()
+    CS = plt.contour(hor, ver, vals)
+    plt.title('Contour Plot')
+    plt.xlabel('w1')
+    plt.ylabel('w2')
+    plt.legend()
+    plt.savefig('resources/part6a.jpg')
+    #plt.show()
+    plt.close()
+    
+    
+    #Part 6b and 6c
+    W = W_part5.copy()
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 10000, mom=0)
+    W = W_part5.copy()
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 2000, mom=0.8)
+    CS = plt.contour(hor, ver, vals)
+    plt.plot(w1_prog, w2_prog, label='No Momentum')
+    plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
+    plt.title('Contour Plot with Weight Trajectories')
+    plt.xlabel('w1')
+    plt.ylabel('w2')
+    plt.legend()
+    plt.savefig('resources/part6bc.jpg')
+    plt.show()
+    plt.close()
+    
+    
+    #Part 6e
+    W = W_part5.copy()
+    w1_pos = (1,1)
+    w2_pos = (1,2)
+    w1 = W[w1_pos]
+    w2 = W[w2_pos]
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog, w2_prog = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 2000, mom=0)
+    W = W_part5.copy()
+    W[w1_pos] += 7
+    W[w2_pos] += 7
+    w1_prog_mom, w2_prog_mom = backprop_monitor_W(x_train, y_train, w1_pos, w2_pos, W, b, 1e-4, 1000, mom=0.8)
+    CS = plt.contour(hor, ver, vals)
+    plt.plot(w1_prog, w2_prog, label='No Momentum')
+    plt.plot(w1_prog_mom, w2_prog_mom, label='Momentum')
+    plt.title('Contour Plot with Weight Trajectories')
+    plt.xlabel('w1')
+    plt.ylabel('w2')
+    plt.legend()
+    plt.savefig('resources/part6e.jpg')
+    plt.show()
+    
 
 
-
+## Code not used from Profs
     if False:
+        
+        
+        def tanh_layer(y, W, b):   #Provided by profs
+            '''Return the output of a tanh layer for the input matrix y. y
+            is an NxM matrix where N is the number of inputs for a single case, and M
+            is the number of cases'''
+            return tanh(dot(W.T, y)+b)
+        
+        def forward(x, W0, b0, W1, b1): #Provided by profs
+            L0 = tanh_layer(x, W0, b0)
+            L1 = dot(W1.T, L0) + b1
+            output = softmax(L1)
+            return L0, L1, output
+        
+        def deriv_multilayer(W0, b0, W1, b1, x, L0, L1, y, y_):  #provided by profs
+            '''Incomplete function for computing the gradient of the cross-entropy
+            cost function w.r.t the parameters of a neural network'''
+            dCdL1 =  y - y_
+            dCdW1 =  dot(L0, dCdL1.T )
+    
+    
         #Load sample weights for the multilayer neural network (given)
         snapshot = pickle.load(open("snapshot50.pkl", 'rb'), encoding='latin1')
         W0 = snapshot["W0"]
