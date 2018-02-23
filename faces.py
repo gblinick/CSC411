@@ -58,7 +58,7 @@ def get_set_data(M, acts, set):
 def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
     dim_h, rate, no_epochs, iter = params
     dim_x = 32*32
-    dim_out = 12
+    dim_out = 6
     
     dtype_float = torch.FloatTensor
     dtype_long = torch.LongTensor
@@ -115,50 +115,80 @@ def train(train_x, train_y, val_x, val_y, test_x, test_y, params):
     y_pred = model(x).data.numpy()
     test_res = np.mean( np.argmax(y_pred, 1) == np.argmax(test_y, 1) )
     
-    return train_acc, val_acc, test_res
+    return train_acc, val_acc, test_res, model
 
 def optimize_params(train_x, train_y, val_x, val_y, test_x, test_y):
     
     print('Trial 1')
     p1 = (25, 1e-2, 5, 1000)
-    train_res, val_res, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, p1)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p1)
     print('Train Acc: ' + str(train_res) )
     print('Val Acc: ' + str(val_res) )
     print('Test Res: ' + str(test_res) + '\n')
     
     print('Trial 2')
     p2 = (25, 1e-3, 5, 1000)
-    train_res, val_res, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, p2)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p2)
     print('Train Acc: ' + str(train_res) )
     print('Val Acc: ' + str(val_res) )
     print('Test Res: ' + str(test_res) + '\n')
         
     print('Trial 3')
     p3 = (25, 1e-3, 10, 800)
-    train_res, val_res, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, p3)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p3)
     print('Train Acc: ' + str(train_res) )
     print('Val Acc: ' + str(val_res) )
     print('Test Res: ' + str(test_res) + '\n')
         
     print('Trial 4')
     p4 = (20, 1e-2, 5, 800)
-    train_res, val_res, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, p4)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p4)
     print('Train Acc: ' + str(train_res) )
     print('Val Acc: ' + str(val_res) )
     print('Test Res: ' + str(test_res) + '\n')
         
     print('Trial 5')
     p5 = (20, 1e-3, 5, 1000)
-    train_res, val_res, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, p5)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p5)
     print('Train Acc: ' + str(train_res) )
     print('Val Acc: ' + str(val_res) )
     print('Test Res: ' + str(test_res) + '\n')
-        
+    
+    '''
+    print('Trial 6')
+    p5 = (200, 1e-3, 10, 1000)
+    train_res, val_res, test_res, _ = train(train_x, train_y, val_x, val_y, test_x, test_y, p5)
+    print('Train Acc: ' + str(train_res) )
+    print('Val Acc: ' + str(val_res) )
+    print('Test Res: ' + str(test_res) + '\n')
+    '''
+    
     return 
+
+def image_weights(W0, filename):
+    #Part 9
+    fig, ax = plt.subplots(5,5)
+
+    for i in range(5):
+        for k in range(5):
+            img = reshape( W0[i,:], (32,32) )
+            plt.sca(ax[i, k]) #set current axes
+            plt.imshow(img, cmap = 'RdBu') #cm.gray
+            plt.axis('off')
+    
+    plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.95, wspace=0.2, hspace=0.2)    
+    
+    #plt.show()
+    plt.savefig(filename)
+    plt.close()
+    return
 
 
 if __name__ == "__main__": 
 
+    
+    dtype_float = torch.FloatTensor
+    dtype_long = torch.LongTensor
     
     #Set up data
     acts_m = ['hader', 'carell', 'baldwin']
@@ -183,12 +213,12 @@ if __name__ == "__main__":
     no_epochs = 5
     iter = 1000      #iterations per mini_batch
     params = (dim_h, rate, no_epochs, iter)
-    train_acc, val_acc, test_res = train(train_x, train_y, val_x, val_y, test_x, test_y, params)
+    train_acc, val_acc, test_res, nn = train(train_x, train_y, val_x, val_y, test_x, test_y, params)
     print('Final Train Acc: ' + str(train_acc[len(train_acc) -1]) )
     print('Final Val Acc: ' + str(val_acc[len(val_acc)-1]) )
     print('Test Res: ' + str(test_res) )
     
-    if True:
+    if False:
         filename = 'part8.jpg'
         epochs = np.linspace(1, no_epochs*6, no_epochs*6)
         plt.scatter(epochs, train_acc, label='Training Data')
@@ -200,3 +230,18 @@ if __name__ == "__main__":
         plt.savefig('resources/' + filename)
         #plt.show()
         plt.close()
+
+    #Part 9
+    W_torch = nn[0].weight.data
+    W0 = W_torch.numpy() #numpy array containing weights from input to L1
+    image_weights(W0, 'resources/part9.jpg')
+    
+    x = Variable(torch.from_numpy(W0), requires_grad=False).type(dtype_float)
+    y = nn(x)
+    y = y.data.numpy()
+    for k in range( np.shape(y)[0] ):
+        print( np.argmax(y[k,:]) )
+        #['hader', 'carell', 'baldwin'] and ['harmon', 'bracco', 'gilpin']
+
+
+

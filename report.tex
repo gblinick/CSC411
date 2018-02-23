@@ -470,18 +470,38 @@
    given above. Small changes around these values (particularly increasing the number of epochs)
    had small effects on the results.
 
-   These parameters give a final training accuracy of 99.5\%, validation accuracy of 83.8\%, and
-   testing accuracy of 81.7\% (when the data seed is set to 2). While the validation set did have an effect on training through the
-   choice of hyper-parameters, this is mitigated by the cross-validation; taking it to be part of
-   the testing set gives an accuracy of 82.8\%.
-   Averaging the testing accuracy (again including the validation set) over the cross-validation
-   samples (i.e. seed of 0,1,2,3) gives an accuracy of 80.5\%.
+   These parameters give a final training accuracy of $>99\%$, validation accuracy of $81\%$, and
+   testing accuracy $of 83.3\%$ when averaged over all the seeds.
+   While the validation set did have an effect on training through the choice of hyper-parameters,
+   this is mitigated by the cross-validation; taking it to be part of the testing set gives an accuracy
+   of $82.15\%$.
 
    To further improve this result, experimentation with color images, or vastly increasing the
-   number of hidden neurons would be a good place to start.
+   number of hidden neurons would be a good place to start. With more hidden neurons, there may be
+   greater ability for the network to abstract properties of each actor. However, testing this
+   with 200 hidden neurons (trial 6 in \texttt{optimize\_params()}) gave validation accuracy of
+   $76.8\%$ and testing accuracy of $75\%$, for a data seed of 1. This was the lowest accuracy
+   of any of the \texttt{optimize\_params()} trials with that seed, but was not tested for other
+   divisions of the data due to the long runtime (the number of epochs was increased to allow more
+   time for all the neurons to converge).
+
 
    \section{Visualizing Weights}
-   The following image...
+      \begin{figure}[h!] \centering
+         \includegraphics[width=4in]{resources/part9}
+         \caption{Visualization of the weights into the hidden layer (the color is artificial).}
+         \label{part9}
+       \end{figure}
+
+   Figure \ref{part9} shows all the weights from the input layer (1024 inputs) to the first (only)
+   hidden layer in Part 8 (25 hidden units).
+
+   To identify the faces shown in these images, they were passed through the neural network, to see the predictions.
+   Based on this (and ignoring the images in rows 2 and 3), Hader is most present in images 2,3, and 20,
+   and Harmon in images 4 and 19. The rest of the images are most identified with the other actors (see
+   the code at the end of \texttt{faces.py}, where one can simply identify each image with the list of actors).
+   As each image is a representation of the weights into a neuron in the hidden layer, the images noted above
+   are associated with the same neurons in the network.
 
    \section{AlexNet}
 
